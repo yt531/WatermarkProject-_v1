@@ -3,6 +3,10 @@ let files = [];
 let previewImg = new Image();
 let currentMode = "single";
 let currentPos = "middle-center";
+let customPosRel = null;
+let isDraggingWatermark = false;
+let wmDragOffsetX = 0;
+let wmDragOffsetY = 0;
 let usageMode = "general"; // 'general' | 'idcard'
 let isLoaded = false;
 let savedColor = "#FF0000";
@@ -112,9 +116,159 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   initDraggableMask();
+  initWatermarkDrag();
   const resizeObserver = new ResizeObserver(() => update());
   resizeObserver.observe(maskBox);
 });
+
+// --- 浮水印拖曳 ---
+function initWatermarkDrag() {
+  const startDrag = (e) => {
+    if (currentMode !== 'single') return;
+    if (e.target !== canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const canvasClickX = clickX * scaleX;
+    const canvasClickY = clickY * scaleY;
+
+    const p = getParams();
+    const basePx = canvas.width / 20;
+    const fontSize = basePx * (p.size / 50);
+    ctx.font = `bold ${fontSize}px "${p.font}"`;
+    const textW = ctx.measureText(p.text).width;
+
+    let cx, cy;
+    if (p.customPosRel) {
+      cx = p.customPosRel.x * canvas.width;
+      cy = p.customPosRel.y * canvas.height;
+    } else {
+      if (p.pos === "custom") return; // fallback
+      const [v, h] = p.pos.split("-");
+      const margin = fontSize;
+      if (h === "left") cx = margin + textW / 2;
+      else if (h === "right") cx = canvas.width - margin - textW / 2;
+      else cx = canvas.width / 2;
+      if (v === "top") cy = margin + fontSize / 2;
+      else if (v === "bottom") cy = canvas.height - margin - fontSize / 2;
+      else cy = canvas.height / 2;
+    }
+
+    const dx = canvasClickX - cx;
+    const dy = canvasClickY - cy;
+    const angle = -(p.rotate * Math.PI) / 180;
+    const rotX = dx * Math.cos(angle) - dy * Math.sin(angle);
+    const rotY = dx * Math.sin(angle) + dy * Math.cos(angle);
+
+    // text bounds testing
+    if (rotX >= -textW / 2 && rotX <= textW / 2 && rotY >= -fontSize / 2 && rotY <= fontSize / 2) {
+      isDraggingWatermark = true;
+      wmDragOffsetX = dx;
+      wmDragOffsetY = dy;
+      canvas.style.cursor = "grabbing";
+      e.preventDefault();
+    }
+  };
+
+  const doDrag = (e) => {
+    if (!isDraggingWatermark) return;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const canvasClickX = clickX * scaleX;
+    const canvasClickY = clickY * scaleY;
+
+    let newCx = canvasClickX - wmDragOffsetX;
+    let newCy = canvasClickY - wmDragOffsetY;
+
+    customPosRel = {
+      x: newCx / canvas.width,
+      y: newCy / canvas.height
+    };
+
+    currentPos = "custom";
+    document.querySelectorAll(".grid-btn").forEach((b) => b.classList.remove("active"));
+
+    update();
+    e.preventDefault();
+  };
+
+  const stopDrag = () => {
+    if (isDraggingWatermark) {
+      isDraggingWatermark = false;
+      canvas.style.cursor = "";
+    }
+  };
+
+  const updateCursor = (e) => {
+    if (isDraggingWatermark || currentMode !== 'single') return;
+    if (e.target !== canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const canvasClickX = clickX * scaleX;
+    const canvasClickY = clickY * scaleY;
+
+    const p = getParams();
+    const basePx = canvas.width / 20;
+    const fontSize = basePx * (p.size / 50);
+    ctx.font = `bold ${fontSize}px "${p.font}"`;
+    const textW = ctx.measureText(p.text).width;
+
+    let cx, cy;
+    if (p.customPosRel) {
+      cx = p.customPosRel.x * canvas.width;
+      cy = p.customPosRel.y * canvas.height;
+    } else {
+      if (p.pos === "custom") return;
+      const [v, h] = p.pos.split("-");
+      const margin = fontSize;
+      if (h === "left") cx = margin + textW / 2;
+      else if (h === "right") cx = canvas.width - margin - textW / 2;
+      else cx = canvas.width / 2;
+      if (v === "top") cy = margin + fontSize / 2;
+      else if (v === "bottom") cy = canvas.height - margin - fontSize / 2;
+      else cy = canvas.height / 2;
+    }
+
+    const dx = canvasClickX - cx;
+    const dy = canvasClickY - cy;
+    const angle = -(p.rotate * Math.PI) / 180;
+    const rotX = dx * Math.cos(angle) - dy * Math.sin(angle);
+    const rotY = dx * Math.sin(angle) + dy * Math.cos(angle);
+
+    if (rotX >= -textW / 2 && rotX <= textW / 2 && rotY >= -fontSize / 2 && rotY <= fontSize / 2) {
+      canvas.style.cursor = "grab";
+    } else {
+      canvas.style.cursor = "";
+    }
+  };
+
+  canvas.addEventListener("mousedown", startDrag);
+  canvas.addEventListener("touchstart", startDrag, { passive: false });
+  window.addEventListener("mousemove", doDrag, { passive: false });
+  window.addEventListener("touchmove", doDrag, { passive: false });
+  window.addEventListener("mouseup", stopDrag);
+  window.addEventListener("touchend", stopDrag);
+  canvas.addEventListener("mousemove", updateCursor);
+}
 
 // --- 8方向拖曳與縮放 ---
 function initDraggableMask() {
@@ -325,6 +479,7 @@ function setMode(mode) {
 
 function setPos(pos) {
   currentPos = pos;
+  customPosRel = null;
   document
     .querySelectorAll(".grid-btn")
     .forEach((b) => b.classList.remove("active"));
@@ -448,6 +603,7 @@ function getParams() {
     opacity: parseInt(document.getElementById("opNum").value) / 100,
     gap: parseInt(document.getElementById("gapNum").value),
     pos: currentPos,
+    customPosRel: customPosRel,
     mask: mask,
   };
 }
@@ -485,14 +641,24 @@ function applyWatermarkToCanvas(targetCtx, width, height, p) {
   if (currentMode === "single") {
     const textW = targetCtx.measureText(p.text).width;
     let x, y;
-    const [v, h] = p.pos.split("-");
-    const margin = fontSize;
-    if (h === "left") x = margin + textW / 2;
-    else if (h === "right") x = width - margin - textW / 2;
-    else x = width / 2;
-    if (v === "top") y = margin + fontSize / 2;
-    else if (v === "bottom") y = height - margin - fontSize / 2;
-    else y = height / 2;
+    if (p.customPosRel) {
+      x = p.customPosRel.x * width;
+      y = p.customPosRel.y * height;
+    } else {
+      if (p.pos === "custom") {
+          x = width / 2;
+          y = height / 2;
+      } else {
+          const [v, h] = p.pos.split("-");
+          const margin = fontSize;
+          if (h === "left") x = margin + textW / 2;
+          else if (h === "right") x = width - margin - textW / 2;
+          else x = width / 2;
+          if (v === "top") y = margin + fontSize / 2;
+          else if (v === "bottom") y = height - margin - fontSize / 2;
+          else y = height / 2;
+      }
+    }
     targetCtx.translate(x, y);
     targetCtx.rotate((p.rotate * Math.PI) / 180);
     targetCtx.fillText(p.text, 0, 0);
