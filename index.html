@@ -31,6 +31,7 @@
 
     <div class="main-workspace">
       <div class="preview-pane" id="previewPane">
+        <button id="btnFullscreen" class="fullscreen-btn" onclick="toggleFullscreen()" title="放大預覽">⛶</button>
         <div id="welcomeMsg" style="color: #666">請載入檔案<span class="desktop-only-text"> (可從右側選單)</span></div>
 
         <div class="canvas-wrapper" id="canvasWrapper">
@@ -118,6 +119,42 @@
       </div>
 
       <div class="control-pane">
+
+        <!-- Action Bar moved to top for better UX -->
+        <div class="action-bar sticky-top">
+          <div style="margin-bottom: 10px">
+            <label style="font-size: 13px; font-weight: bold; color: #555"
+              >輸出檔名設定：</label
+            >
+            <div style="display: flex; gap: 5px; margin-top: 5px">
+              <input
+                type="text"
+                id="outputFileName"
+                value="watermarked_output"
+                placeholder="輸入檔名"
+                style="flex: 2"
+              />
+              <select id="outputFormat" style="flex: 1">
+                <option value="auto">自動</option>
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+          </div>
+          <button
+            class="primary-btn"
+            id="dlBtn"
+            disabled
+          >
+            另存新檔
+          </button>
+          <div
+            id="statusMsg"
+            style="text-align: center; font-size: 12px; margin-top: 5px"
+          ></div>
+        </div>
+
         <div class="panel-section">
           <label class="file-upload-btn">
             📂 選擇檔案 (支援多選)
@@ -441,6 +478,14 @@
           ></div>
         </div>
       </div>
+    </div>
+
+    <!-- Fullscreen Overlay -->
+    <div id="fullscreenOverlay" class="fullscreen-overlay" style="display: none;">
+        <button class="close-fullscreen-btn" onclick="toggleFullscreen()">×</button>
+        <div class="fullscreen-content">
+            <img id="fullscreenImg" src="" alt="Full Preview" />
+        </div>
     </div>
 
     <script type="module" src="js/modules/main.js"></script>
