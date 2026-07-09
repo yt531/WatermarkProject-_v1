@@ -4,6 +4,7 @@
   --panel-bg: #ffffff;
   --border: #e1dfdd;
 }
+
 body {
   font-family: "Segoe UI", "Noto Sans TC", sans-serif;
   background-color: var(--bg);
@@ -22,7 +23,9 @@ header {
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 100;
 }
+
 h1 {
   margin: 0;
   font-size: 18px;
@@ -33,7 +36,10 @@ h1 {
   display: flex;
   flex: 1;
   overflow: hidden;
+  flex-direction: row;
 }
+
+/* --- Preview Pane --- */
 .preview-pane {
   flex: 1;
   background-color: #e3e5e8;
@@ -46,13 +52,91 @@ h1 {
   position: relative;
   touch-action: none;
 }
+
+.canvas-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .canvas-container {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
   background: white;
   max-width: 100%;
   max-height: 100%;
   border: 1px solid #ccc;
+  display: block; /* prevent inline baseline gaps */
 }
+
+/* Carousel UI for multi-files */
+.carousel-controls {
+  display: none; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.carousel-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.carousel-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.carousel-dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 60%;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+}
+
+.carousel-dot.active {
+  background: var(--primary);
+}
+
+.carousel-info {
+  font-size: 12px;
+  color: #555;
+  margin-top: 5px;
+}
+
+/* --- Settings toggle --- */
+.apply-all-toggle {
+    display: none; /* hidden if 1 file */
+    margin-top: 10px;
+    background: #eef3fb;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    border: 1px solid #ccdbe8;
+}
+
+/* --- Control Pane --- */
 .control-pane {
   width: 380px;
   background-color: var(--panel-bg);
@@ -62,7 +146,7 @@ h1 {
   flex-direction: column;
 }
 
-/* --- 安全遮罩框 (8點控制版) --- */
+/* --- Masks & Draggable Elements --- */
 .mask-box {
   position: absolute;
   top: 20%;
@@ -78,6 +162,7 @@ h1 {
   min-height: 20px;
   pointer-events: auto;
 }
+
 .mask-label {
   background: red;
   color: white;
@@ -90,89 +175,91 @@ h1 {
   white-space: nowrap;
 }
 
-/* 調整手柄 */
-.resize-handle {
+/* Word-style Text Box */
+.text-box-layer {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background: white;
-  border: 1px solid red;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
-  z-index: 11;
+  top: 30%;
+  left: 30%;
+  width: 200px;
+  height: 60px;
+  border: 1px dashed #2b579a;
+  cursor: move;
+  box-sizing: border-box;
+  z-index: 12;
+  min-width: 40px;
+  min-height: 40px;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: rgba(43, 87, 154, 0.05); */
 }
-.n {
-  top: -5px;
-  left: 50%;
-  margin-left: -5px;
-  cursor: n-resize;
+.text-box-layer:hover {
+  border: 2px dashed #2b579a;
 }
-.s {
-  bottom: -5px;
-  left: 50%;
-  margin-left: -5px;
-  cursor: s-resize;
-}
-.w {
-  left: -5px;
-  top: 50%;
-  margin-top: -5px;
-  cursor: w-resize;
-}
-.e {
-  right: -5px;
-  top: 50%;
-  margin-top: -5px;
-  cursor: e-resize;
-}
-.nw {
-  top: -5px;
-  left: -5px;
-  cursor: nw-resize;
-}
-.ne {
-  top: -5px;
-  right: -5px;
-  cursor: ne-resize;
-}
-.sw {
-  bottom: -5px;
-  left: -5px;
-  cursor: sw-resize;
-}
-.se {
-  bottom: -5px;
-  right: -5px;
-  cursor: se-resize;
+.text-box-layer.vertical-text {
+  flex-direction: column;
+  width: 60px;
+  height: 200px;
 }
 
-/* Controls */
+/* Resize Handles */
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+  z-index: 13;
+  border-radius: 50%;
+}
+.mask-box .resize-handle {
+  border-color: red;
+}
+.n { top: -6px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+.s { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+.w { left: -6px; top: 50%; transform: translateY(-50%); cursor: w-resize; }
+.e { right: -6px; top: 50%; transform: translateY(-50%); cursor: e-resize; }
+.nw { top: -6px; left: -6px; cursor: nw-resize; }
+.ne { top: -6px; right: -6px; cursor: ne-resize; }
+.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+.se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+
+/* --- Form & Controls --- */
 .panel-section {
   padding: 15px;
   border-bottom: 1px solid var(--border);
 }
+
 fieldset {
   border: 1px solid #d0d0d0;
   border-radius: 4px;
   margin: 0 0 15px 0;
   padding: 10px;
 }
+
 legend {
   font-size: 12px;
   color: var(--primary);
   font-weight: bold;
   padding: 0 5px;
 }
+
 .row {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
   gap: 8px;
 }
+
 label {
   font-size: 13px;
   min-width: 60px;
   color: #444;
 }
+
 input[type="text"],
 input[type="number"],
 select {
@@ -180,31 +267,45 @@ select {
   border: 1px solid #888;
   border-radius: 3px;
   font-size: 13px;
+  box-sizing: border-box;
 }
+
 input[type="text"]:focus,
 input[type="number"]:focus {
   border-color: var(--primary);
   outline: none;
 }
+
 .slider-group {
   display: flex;
   align-items: center;
   width: 100%;
   gap: 5px;
 }
+
 input[type="range"] {
   flex: 1;
   cursor: pointer;
 }
+
 input.num-input {
   width: 50px;
   text-align: right;
 }
 
-/* Color Picker */
-.color-control-wrapper {
-  position: relative;
+textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 4px 8px;
+  border: 1px solid #888;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
 }
+
+/* Color Picker */
+.color-control-wrapper { position: relative; }
 .color-dropdown-btn {
   width: 100%;
   padding: 8px;
@@ -233,10 +334,7 @@ input.num-input {
   border-bottom: 4px solid #ff0000;
   font-family: serif;
 }
-.btn-text {
-  font-size: 13px;
-  color: #444;
-}
+.btn-text { font-size: 13px; color: #444; }
 .color-popup {
   position: absolute;
   top: 100%;
@@ -262,9 +360,7 @@ input.num-input {
   gap: 2px;
   margin-bottom: 10px;
 }
-.standard-grid {
-  margin-bottom: 5px;
-}
+.standard-grid { margin-bottom: 5px; }
 .swatch {
   width: 18px;
   height: 18px;
@@ -279,23 +375,14 @@ input.num-input {
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
   z-index: 1;
 }
-.color-divider {
-  height: 1px;
-  background: #eee;
-  margin: 8px 0;
-}
+.color-divider { height: 1px; background: #eee; margin: 8px 0; }
 .custom-color-panel {
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid #eee;
 }
-.rgb-inputs {
-  display: flex;
-  gap: 5px;
-}
-.rgb-inputs input {
-  width: 100%;
-}
+.rgb-inputs { display: flex; gap: 5px; }
+.rgb-inputs input { width: 100%; }
 
 /* Grid Selector */
 .grid-selector {
@@ -326,12 +413,8 @@ input.num-input {
   font-size: 14px;
   display: block;
 }
-.file-upload-btn:hover {
-  background: #1e3f72;
-}
-input[type="file"] {
-  display: none;
-}
+.file-upload-btn:hover { background: #1e3f72; }
+input[type="file"] { display: none; }
 .action-bar {
   padding: 15px;
   margin-top: auto;
@@ -376,109 +459,85 @@ button.primary-btn:disabled {
   color: var(--primary);
 }
 
-/* --- 手機版專用優化 (貼在 style.css 最下方) --- */
+/* --- Mobile First Optimizations --- */
+
+/* Make default contextual text mobile-friendly */
+.desktop-only-text {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .desktop-only-text {
+    display: inline;
+  }
+}
+
 @media (max-width: 768px) {
   body {
     height: auto;
-    overflow-x: hidden; /* 防止左右滑動 */
+    overflow-x: hidden;
   }
 
   .main-workspace {
     flex-direction: column;
-    overflow-y: visible; /* 讓手機版可以自然捲動 */
+    overflow-y: visible;
   }
 
-  /* 1. 優化預覽區體驗 */
+  /* Preview pane becomes top half */
   .preview-pane {
-    height: 50vh; /* 佔用螢幕一半高度，確保看得到預覽 */
+    height: 55vh;
     flex: none;
     border-bottom: 2px solid #ddd;
-    /* 關鍵：防止手指拖曳遮罩時，整個網頁跟著上下彈動 (iOS Safari 特別重要) */
     overscroll-behavior: none;
-    touch-action: none;
+    touch-action: none; /* Prevents scrolling when trying to drag masks */
+    padding: 10px;
   }
 
-  /* 2. 加大紅框的控制點 (Resize Handles) */
-  /* 手指比滑鼠粗，原本 10px 太難按，改為 24px */
+  /* Make touch targets larger for mobile */
   .resize-handle {
     width: 24px;
     height: 24px;
-    border-width: 2px; /* 加粗邊框讓視覺更明顯 */
-    border-radius: 50%; /* 改成圓形比較好看且好按 */
-    background: white;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    border-width: 2px;
   }
+  .n { top: -12px; }
+  .s { bottom: -12px; }
+  .w { left: -12px; }
+  .e { right: -12px; }
+  .nw { top: -12px; left: -12px; }
+  .ne { top: -12px; right: -12px; }
+  .sw { bottom: -12px; left: -12px; }
+  .se { bottom: -12px; right: -12px; }
 
-  /* 因為控制點變大了，需要重新校正位置 (24px的一半是12px) */
-  .n {
-    top: -12px;
-    margin-left: -12px;
-  }
-  .s {
-    bottom: -12px;
-    margin-left: -12px;
-  }
-  .w {
-    left: -12px;
-    margin-top: -12px;
-  }
-  .e {
-    right: -12px;
-    margin-top: -12px;
-  }
-  .nw {
-    top: -12px;
-    left: -12px;
-  }
-  .ne {
-    top: -12px;
-    right: -12px;
-  }
-  .sw {
-    bottom: -12px;
-    left: -12px;
-  }
-  .se {
-    bottom: -12px;
-    right: -12px;
-  }
-
-  /* 3. 優化控制面板 */
+  /* Control pane takes up full width */
   .control-pane {
     width: 100%;
     border-left: none;
     border-top: none;
     height: auto;
     overflow: visible;
-    padding-bottom: 80px; /* 預留底部空間給按鈕 */
+    padding-bottom: 140px; /* Space for action bar */
   }
 
-  /* 4. 加大按鈕觸控區域 (符合 Apple/Google 設計規範的最小 44px) */
+  /* Enlarge form elements */
   .mode-btn,
   .grid-btn,
   .color-dropdown-btn,
   .file-upload-btn,
   input[type="range"],
-  select {
+  select,
+  input[type="text"],
+  input[type="number"],
+  textarea {
     min-height: 44px;
-    font-size: 14px; /* 字體稍微加大 */
+    font-size: 15px;
   }
 
-  /* 九宮格按鈕加大 */
-  .grid-selector {
-    width: 100%; /* 讓九宮格寬一點 */
-    gap: 8px;
-  }
-  .grid-btn {
-    height: 40px;
-  }
+  .grid-selector { width: 100%; gap: 8px; }
+  .grid-btn { height: 44px; }
 
-  /* 讓滑桿更好拉 */
-  input[type="range"] {
-    height: 30px; /* 增加滑桿感應區高度 */
-  }
+  .row { flex-direction: column; align-items: flex-start; }
+  .row > label { margin-bottom: 4px; }
 
-  /* 讓「另存新檔」按鈕固定在底部，方便操作 */
   .action-bar {
     position: fixed;
     bottom: 0;
@@ -487,12 +546,27 @@ button.primary-btn:disabled {
     z-index: 100;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     padding: 10px 15px;
-    background: #f9f9f9; /* 確保不透明 */
+    background: #f9f9f9;
+    box-sizing: border-box;
   }
 
-  /* 修正彈出顏色選單的位置 */
   .color-popup {
-    width: 90%; /* 手機上寬度設為 90% */
+    width: 90%;
     left: 5%;
   }
+
+  /* Carousel touch improvements */
+  .carousel-controls {
+     gap: 20px;
+  }
+  .carousel-btn {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+  }
+}
+
+/* Hide 9-grid position UI in general mode since we have free drag text box */
+.hide-grid-selector #singleControls {
+    display: none !important;
 }
