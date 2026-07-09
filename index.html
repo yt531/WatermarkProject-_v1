@@ -31,11 +31,24 @@
 
     <div class="main-workspace">
       <div class="preview-pane" id="previewPane">
-        <div id="welcomeMsg" style="color: #666">請從右側選單載入檔案</div>
+        <div id="welcomeMsg" style="color: #666">請載入檔案<span class="desktop-only-text"> (可從右側選單)</span></div>
 
-        <div style="position: relative; display: inline-block">
+        <div class="canvas-wrapper" id="canvasWrapper">
           <canvas id="previewCanvas" class="canvas-container"></canvas>
 
+          <!-- Text Box for General Mode (Word Style) -->
+          <div id="watermarkTextBox" class="text-box-layer" style="display: none">
+            <div class="resize-handle n" data-dir="n"></div>
+            <div class="resize-handle s" data-dir="s"></div>
+            <div class="resize-handle w" data-dir="w"></div>
+            <div class="resize-handle e" data-dir="e"></div>
+            <div class="resize-handle nw" data-dir="nw"></div>
+            <div class="resize-handle ne" data-dir="ne"></div>
+            <div class="resize-handle sw" data-dir="sw"></div>
+            <div class="resize-handle se" data-dir="se"></div>
+          </div>
+
+          <!-- Mask Box for ID Mode -->
           <div id="safeZoneBox" class="mask-box" style="display: none">
             <div class="mask-label">安全區 (不蓋印)</div>
             <div class="resize-handle n" data-dir="n"></div>
@@ -94,31 +107,46 @@
           </div>
         </div>
 
+          <div class="carousel-controls" id="carouselControls">
+            <button class="carousel-btn" id="btnPrevFile" onclick="prevFile()">&lt;</button>
+            <div class="carousel-dots" id="carouselDots"></div>
+            <button class="carousel-btn" id="btnNextFile" onclick="nextFile()">&gt;</button>
+          </div>
+          <div id="fileInfoCarousel" class="carousel-info"></div>
+
+        </div>
+      </div>
+
+      <div class="control-pane">
         <div class="panel-section">
           <label class="file-upload-btn">
             📂 選擇檔案 (支援多選)
             <input
               type="file"
               id="fileInput"
-              accept=".jpg,.png,.pdf"
+              accept="image/*,application/pdf"
               multiple
               onchange="handleFiles()"
             />
           </label>
-          <div
-            id="fileInfo"
-            style="
-              font-size: 12px;
-              margin-top: 5px;
-              color: #666;
-              text-align: center;
-            "
-          >
+
+          <div class="apply-all-toggle" id="applyAllToggle">
+             <label style="display:flex; align-items:center; cursor:pointer;">
+                <input type="checkbox" id="chkApplyAll" checked onchange="toggleApplyAll()" style="margin-right:8px;"/>
+                套用設定至所有檔案 (統一設定)
+             </label>
+             <div style="font-size:11px; color:#666; margin-top:4px;">取消勾選即可為每張圖獨立設定浮水印</div>
+          </div>
+
+          <div id="fileInfo" style="font-size: 12px; margin-top: 5px; color: #666; text-align: center;">
             尚未選擇
           </div>
         </div>
 
-        <div class="panel-section">
+        <div
+          class="panel-section"
+          style="background: #eef3fb; border-bottom: 2px solid #ccdbe8"
+        >
           <div class="mode-switch">
             <button
               class="mode-btn active"
@@ -135,13 +163,16 @@
           <fieldset>
             <legend>內容與字型</legend>
             <div class="row">
-              <input
-                type="text"
+              <textarea
                 id="wmText"
-                value="機密 CONFIDENTIAL"
-                style="width: 100%"
-                oninput="update()"
-              />
+                rows="2"
+              >機密 CONFIDENTIAL</textarea>
+            </div>
+            <div class="row">
+              <label style="display:flex; align-items:center; cursor:pointer; width:100%;">
+                 <input type="checkbox" id="chkVerticalText" onchange="toggleVerticalText()" style="margin-right:8px;"/>
+                 使用垂直文字 (直書)
+              </label>
             </div>
             <div class="row">
               <select id="wmFont" style="width: 100%" onchange="update()">
@@ -412,6 +443,6 @@
       </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script type="module" src="js/modules/main.js"></script>
   </body>
 </html>
