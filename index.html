@@ -118,17 +118,19 @@
       </div>
 
       <div class="control-pane">
-        <div class="panel-section">
-          <label class="file-upload-btn">
-            📂 選擇檔案 (支援多選)
-            <input
-              type="file"
-              id="fileInput"
-              accept="image/*,application/pdf"
-              multiple
-              onchange="handleFiles()"
-            />
+        <!-- This file upload section is moved to desktop control pane top, and we will place the actual buttons in the bottom bar for mobile -->
+        <div class="panel-section desktop-only-upload">
+          <label class="file-upload-btn" for="fileInput">
+            📂 上傳檔案 (支援多選)
           </label>
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*,application/pdf"
+            multiple
+            onchange="handleFiles()"
+            style="display: none;"
+          />
 
           <div class="apply-all-toggle" id="applyAllToggle">
              <label style="display:flex; align-items:center; cursor:pointer;">
@@ -406,7 +408,7 @@
           </fieldset>
         </div>
 
-        <div class="action-bar">
+        <div class="panel-section action-bar-settings">
           <div style="margin-bottom: 10px">
             <label style="font-size: 13px; font-weight: bold; color: #555"
               >輸出檔名設定：</label
@@ -427,14 +429,26 @@
               </select>
             </div>
           </div>
-          <button
-            class="primary-btn"
-            id="dlBtn"
-            onclick="processAll()"
-            disabled
-          >
-            另存新檔
-          </button>
+        </div>
+
+        <div class="action-bar">
+
+          <div class="action-buttons-container">
+            <!-- Mobile specific upload button, hides on desktop -->
+            <label class="file-upload-btn mobile-upload-btn" for="fileInput">
+              📂 上傳檔案
+            </label>
+
+            <button
+              class="primary-btn"
+              id="dlBtn"
+              onclick="processAll()"
+              disabled
+            >
+              下載檔案 (另存新檔)
+            </button>
+          </div>
+
           <div
             id="statusMsg"
             style="text-align: center; font-size: 12px; margin-top: 5px"

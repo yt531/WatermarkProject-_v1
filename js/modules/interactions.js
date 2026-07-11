@@ -61,6 +61,12 @@ function initDraggableElement(elementId, settingKey) {
 
   const doAction = (e) => {
     if (!interactionState) return;
+
+    // Prevent default scroll behavior while dragging/resizing
+    if (e.type.includes("touch")) {
+      e.preventDefault();
+    }
+
     const clientX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
     const clientY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
 
