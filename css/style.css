@@ -50,7 +50,8 @@ h1 {
   padding: 20px;
   overflow: auto;
   position: relative;
-  touch-action: none;
+  /* Allow vertical scrolling on the pane itself */
+  touch-action: pan-y;
 }
 
 .canvas-wrapper {
@@ -165,6 +166,7 @@ h1 {
   min-width: 20px;
   min-height: 20px;
   pointer-events: auto;
+  touch-action: none; /* Prevent scroll when dragging */
 }
 
 .mask-label {
@@ -196,6 +198,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: none; /* Prevent scroll when dragging */
   /* background: rgba(43, 87, 154, 0.05); */
 }
 .text-box-layer:hover {
@@ -217,6 +220,7 @@ h1 {
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
   z-index: 13;
   border-radius: 50%;
+  touch-action: none; /* Prevent scroll when resizing */
 }
 .mask-box .resize-handle {
   border-color: red;
@@ -419,6 +423,17 @@ textarea {
 }
 .file-upload-btn:hover { background: #1e3f72; }
 input[type="file"] { display: none; }
+
+.mobile-upload-btn {
+  display: none;
+}
+
+.action-buttons-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
 .action-bar {
   /* Removed to use sticky-top */
 }
@@ -453,13 +468,13 @@ input[type="file"] { display: none; }
   display: none;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .desktop-only-text {
     display: inline;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   body {
     height: auto;
     overflow-x: hidden;
@@ -472,11 +487,10 @@ input[type="file"] { display: none; }
 
   /* Preview pane becomes top half */
   .preview-pane {
-    height: 55vh;
+    height: 45vh;
     flex: none;
     border-bottom: 2px solid #ddd;
-    overscroll-behavior: none;
-    touch-action: none; /* Prevents scrolling when trying to drag masks */
+    /* allow normal scroll behavior, we handle dragging via touch-action on specific elements */
     padding: 10px;
   }
 
@@ -524,6 +538,18 @@ input[type="file"] { display: none; }
 
   .row { flex-direction: column; align-items: flex-start; }
   .row > label { margin-bottom: 4px; }
+
+  .desktop-only-upload {
+    display: none !important;
+  }
+
+  .mobile-upload-btn {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
 
   .action-bar {
     position: fixed;

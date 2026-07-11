@@ -124,8 +124,8 @@ async function loadFilePreview(index) {
     syncUIWithSettings();
     updatePreview();
 
-    // scroll to top on mobile
-    if (window.innerWidth <= 768) {
+    // scroll to top on mobile/tablet
+    if (window.innerWidth <= 1024) {
       const pane = document.getElementById("previewPane");
       if(pane) pane.scrollIntoView({ behavior: "smooth", block: "start" });
     }
