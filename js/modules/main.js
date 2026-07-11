@@ -44,19 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if(chk) updateCurrentSettings({ isVertical: chk.checked });
     updatePreview();
   };
-  window.toggleFullscreen = () => {
-    const overlay = document.getElementById("fullscreenOverlay");
-    const fsImg = document.getElementById("fullscreenImg");
-    const canvas = document.getElementById("previewCanvas");
-
-    if (overlay.style.display === "none") {
-        fsImg.src = canvas.toDataURL();
-        overlay.style.display = "flex";
-    } else {
-        overlay.style.display = "none";
-        fsImg.src = "";
-    }
-  };
 
   const canvasWrapper = document.getElementById("canvasWrapper");
   if(canvasWrapper) {

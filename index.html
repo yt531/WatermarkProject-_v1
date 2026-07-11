@@ -31,7 +31,6 @@
 
     <div class="main-workspace">
       <div class="preview-pane" id="previewPane">
-        <button id="btnFullscreen" class="fullscreen-btn" onclick="toggleFullscreen()" title="放大預覽">⛶</button>
         <div id="welcomeMsg" style="color: #666">請載入檔案<span class="desktop-only-text"> (可從右側選單)</span></div>
 
         <div class="canvas-wrapper" id="canvasWrapper">
@@ -119,19 +118,33 @@
       </div>
 
       <div class="control-pane">
+        <div class="panel-section">
+          <label class="file-upload-btn">
+            📂 選擇檔案 (支援多選)
+            <input
+              type="file"
+              id="fileInput"
+              accept="image/*,application/pdf"
+              multiple
+              onchange="handleFiles()"
+            />
+          </label>
 
-        <!-- Scrollable Settings Area -->
-        <div class="control-scroll-area">
+          <div class="apply-all-toggle" id="applyAllToggle">
+             <label style="display:flex; align-items:center; cursor:pointer;">
+                <input type="checkbox" id="chkApplyAll" checked onchange="toggleApplyAll()" style="margin-right:8px;"/>
+                套用設定至所有檔案 (統一設定)
+             </label>
+             <div style="font-size:11px; color:#666; margin-top:4px;">取消勾選即可為每張圖獨立設定浮水印</div>
+          </div>
 
-            <div class="panel-section" style="padding-bottom: 5px; border-bottom: none;">
-              <div class="apply-all-toggle" id="applyAllToggle">
-                 <label style="display:flex; align-items:center; cursor:pointer;">
-                    <input type="checkbox" id="chkApplyAll" checked onchange="toggleApplyAll()" style="margin-right:8px;"/>
-                    套用設定至所有檔案 (統一設定)
-                 </label>
-                 <div style="font-size:11px; color:#666; margin-top:4px;">取消勾選即可為每張圖獨立設定浮水印</div>
-              </div>
-            </div>
+          <div id="fileInfo" style="font-size: 12px; margin-top: 5px; color: #666; text-align: center;">
+            尚未選擇
+          </div>
+          <div id="fileInfoCarousel" class="carousel-info"></div>
+
+        </div>
+      </div>
 
         <div
           class="panel-section"
@@ -446,14 +459,6 @@
         </div>
 
       </div>
-    </div>
-
-    <!-- Fullscreen Overlay -->
-    <div id="fullscreenOverlay" class="fullscreen-overlay" style="display: none;">
-        <button class="close-fullscreen-btn" onclick="toggleFullscreen()">×</button>
-        <div class="fullscreen-content">
-            <img id="fullscreenImg" src="" alt="Full Preview" />
-        </div>
     </div>
 
     <script type="module" src="js/modules/main.js"></script>
