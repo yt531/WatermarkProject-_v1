@@ -143,7 +143,10 @@
           <div id="fileInfo" style="font-size: 12px; margin-top: 5px; color: #666; text-align: center;">
             尚未選擇
           </div>
+          <div id="fileInfoCarousel" class="carousel-info"></div>
+
         </div>
+      </div>
 
         <div
           class="panel-section"
@@ -408,8 +411,7 @@
           </fieldset>
         </div>
 
-        <div class="panel-section action-bar-settings">
-          <div style="margin-bottom: 10px">
+        <div class="panel-section">
             <label style="font-size: 13px; font-weight: bold; color: #555"
               >輸出檔名設定：</label
             >
@@ -428,32 +430,36 @@
                 <option value="pdf">PDF</option>
               </select>
             </div>
-          </div>
         </div>
 
-        <div class="action-bar">
+        </div> <!-- End of scroll area -->
 
-          <div class="action-buttons-container">
-            <!-- Mobile specific upload button, hides on desktop -->
-            <label class="file-upload-btn mobile-upload-btn" for="fileInput">
-              📂 上傳檔案
-            </label>
+        <!-- Fixed Action Bar at Bottom -->
+        <div class="fixed-bottom">
+            <div class="action-buttons-row">
+                <label class="action-btn upload-btn">
+                    📁 選擇檔案
+                    <input
+                      type="file"
+                      id="fileInput"
+                      accept="image/*,application/pdf"
+                      multiple
+                      onchange="handleFiles()"
+                    />
+                </label>
+                <button class="action-btn download-btn" id="dlBtn" disabled>
+                    💾 另存新檔
+                </button>
+            </div>
 
-            <button
-              class="primary-btn"
-              id="dlBtn"
-              onclick="processAll()"
-              disabled
-            >
-              下載檔案 (另存新檔)
-            </button>
-          </div>
-
-          <div
-            id="statusMsg"
-            style="text-align: center; font-size: 12px; margin-top: 5px"
-          ></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                <div id="fileInfo" style="font-size: 12px; color: #666; font-weight: bold;">
+                    尚未選擇
+                </div>
+                <div id="statusMsg" style="text-align: right; font-size: 12px; font-weight: bold;"></div>
+            </div>
         </div>
+
       </div>
     </div>
 
