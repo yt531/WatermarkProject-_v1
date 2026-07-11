@@ -11,7 +11,7 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -141,9 +141,13 @@ h1 {
   width: 380px;
   background-color: var(--panel-bg);
   border-left: 1px solid var(--border);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+}
+.control-scroll-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 /* --- Masks & Draggable Elements --- */
@@ -416,26 +420,9 @@ textarea {
 .file-upload-btn:hover { background: #1e3f72; }
 input[type="file"] { display: none; }
 .action-bar {
-  padding: 15px;
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  background: #f9f9f9;
+  /* Removed to use sticky-top */
 }
-button.primary-btn {
-  width: 100%;
-  padding: 12px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-button.primary-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
+
 .mode-switch {
   display: flex;
   background: #eee;
@@ -522,7 +509,7 @@ button.primary-btn:disabled {
   .mode-btn,
   .grid-btn,
   .color-dropdown-btn,
-  .file-upload-btn,
+  .action-btn,
   input[type="range"],
   select,
   input[type="text"],
