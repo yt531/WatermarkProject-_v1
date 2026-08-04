@@ -1,0 +1,10 @@
+Assessment for Phase 2 Migration:
+- canvas.js -> CanvasService (Handles low-level Canvas API operations)
+- carousel.js -> CarouselComponent (Handles UI and logic for image carousel)
+- color.js -> ColorPickerComponent (Handles the complex color picker logic and UI)
+- export.js -> ExportService (Handles zip, download and web worker orchestrations)
+- interactions.js -> InteractionsDirective / InteractionsService (Handles DOM drag/drop events on the canvas preview)
+- main.js -> AppComponent (Main application orchestrator)
+- state.js -> StateService (Angular Injectable Service to maintain global application state using Signals or RxJS BehaviorSubjects)
+- ui.js -> Various sub-components and logic to be split across feature components (e.g., SettingsComponent, PreviewComponent)
+- worker.js -> Will remain a Web Worker file, but might need to be adapted slightly for Angular's asset building if necessary.
