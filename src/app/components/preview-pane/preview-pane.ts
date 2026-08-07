@@ -13,7 +13,6 @@ export class PreviewPaneComponent implements AfterViewInit {
   stateService = inject(WatermarkStateService);
   exportService = inject(WatermarkExportService);
   @ViewChild('previewCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('carouselContainer') carouselRef!: ElementRef<HTMLDivElement>;
   
   private previewImg = new Image();
   isFullscreen = false;
@@ -99,12 +98,9 @@ export class PreviewPaneComponent implements AfterViewInit {
     // Hit box: Text width/height + 20px padding (reduced to avoid accidental drags)
     const halfW = (textW / 2) + 20;
     const halfH = (fontSize / 2) + 20;
-    
-    // Edge protection: left 15% and right 15% of canvas are STRICTLY for swiping
-    const isEdge = touchX < canvas.width * 0.15 || touchX > canvas.width * 0.85;
 
-    // Must hit the text AND not be on the safe swiping edges
-    if (!isEdge && Math.abs(touchX - this.initialWatermarkX) < halfW && Math.abs(touchY - this.initialWatermarkY) < halfH) {
+    // Must hit the text
+    if (Math.abs(touchX - this.initialWatermarkX) < halfW && Math.abs(touchY - this.initialWatermarkY) < halfH) {
         this.isDragging = true;
     } else {
         this.isDragging = false;
@@ -139,7 +135,28 @@ export class PreviewPaneComponent implements AfterViewInit {
     const newX = this.initialWatermarkX + dx * scaleX;
     const newY = this.initialWatermarkY + dy * scaleY;
 
-    this.stateService.watermarkCustomPos.set({ x: newX, y: newY });
+    // Constrain to canvas boundaries
+    const p = this.stateService.getParams();
+    const ctx = canvas.getContext('2d');
+    const basePx = canvas.width / 20;
+    const fontSize = basePx * (p.size / 50);
+    ctx!.font = `bold ${fontSize}px "${p.font}"`;
+    const textW = ctx!.measureText(p.text).width;
+
+    const margin = 10;
+    const minX = textW / 2 + margin;
+    const maxX = canvas.width - textW / 2 - margin;
+    const minY = fontSize / 2 + margin;
+    const maxY = canvas.height - fontSize / 2 - margin;
+
+    let clampedX = Math.max(minX, Math.min(newX, maxX));
+    let clampedY = Math.max(minY, Math.min(newY, maxY));
+
+    // Handle edge case where text is larger than canvas
+    if (minX > maxX) clampedX = canvas.width / 2;
+    if (minY > maxY) clampedY = canvas.height / 2;
+
+    this.stateService.watermarkCustomPos.set({ x: clampedX, y: clampedY });
   }
 
   onPointerUp() {
@@ -175,54 +192,18 @@ export class PreviewPaneComponent implements AfterViewInit {
       }
     });
     
-    // Sync carousel scroll position with activeIndex
-    effect(() => {
-      const index = this.stateService.activeIndex();
-      if (this.carouselRef) {
-        const el = this.carouselRef.nativeElement;
-        const targetLeft = index * el.clientWidth;
-        if (Math.abs(el.scrollLeft - targetLeft) > 5) {
-          el.scrollTo({ left: targetLeft, behavior: 'smooth' });
-        }
-      }
-    });
-  }
-
-  isProgrammaticScroll = false;
-  scrollTimeout: any;
-
-  onScroll(e: Event) {
-    if (this.isProgrammaticScroll) return;
-    const el = e.target as HTMLElement;
-    const index = Math.round(el.scrollLeft / el.clientWidth);
-    if (index !== this.stateService.activeIndex() && index >= 0 && index < this.stateService.files().length) {
-      this.stateService.switchFile(index);
-    }
-  }
-
   prevImage() {
     const idx = this.stateService.activeIndex();
     if (idx > 0) {
-      this.isProgrammaticScroll = true;
       this.stateService.switchFile(idx - 1);
-      this.resetScrollFlag();
     }
   }
 
   nextImage() {
     const idx = this.stateService.activeIndex();
     if (idx < this.stateService.files().length - 1) {
-      this.isProgrammaticScroll = true;
       this.stateService.switchFile(idx + 1);
-      this.resetScrollFlag();
     }
-  }
-
-  resetScrollFlag() {
-    clearTimeout(this.scrollTimeout);
-    this.scrollTimeout = setTimeout(() => {
-      this.isProgrammaticScroll = false;
-    }, 500);
   }
 
   drawCanvas() {
