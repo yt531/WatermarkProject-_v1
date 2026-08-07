@@ -22,18 +22,29 @@ export class FileUploaderComponent {
     const filesArray = Array.from(input.files);
     this.stateService.files.set(filesArray);
     
-    const firstFile = filesArray[0];
-    if (firstFile.type === 'application/pdf') {
-      await this.renderPdfToPreview(firstFile);
-    } else {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          this.stateService.previewImageSrc.set(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(firstFile);
+    // reset mode to unified when new files are uploaded
+    this.stateService.toggleApplyMode('unified');
+    
+    const previews: string[] = [];
+    
+    for (let i = 0; i < filesArray.length; i++) {
+      const file = filesArray[i];
+      if (file.type === 'application/pdf') {
+        const url = await this.renderPdfToPreview(file);
+        previews.push(url);
+      } else {
+        const url = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve((e.target?.result as string) || '');
+          reader.readAsDataURL(file);
+        });
+        previews.push(url);
+      }
     }
+    
+    this.stateService.filePreviews.set(previews);
+    this.stateService.activeIndex.set(0);
+    this.stateService.switchFile(0);
     
     // mobile scroll optimization
     if (window.innerWidth <= 768) {
@@ -44,7 +55,7 @@ export class FileUploaderComponent {
     }
   }
 
-  async renderPdfToPreview(file: File) {
+  async renderPdfToPreview(file: File): Promise<string> {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdfjsLib = (window as any).pdfjsLib;
@@ -56,10 +67,10 @@ export class FileUploaderComponent {
       c.width = viewport.width;
       c.height = viewport.height;
       await page.render({ canvasContext: cx, viewport: viewport }).promise;
-      this.stateService.previewImageSrc.set(c.toDataURL('image/jpeg'));
+      return c.toDataURL('image/jpeg');
     } catch (e) {
       console.error(e);
-      this.stateService.previewImageSrc.set(this.createWhitePlaceholder(600, 800));
+      return this.createWhitePlaceholder(600, 800);
     }
   }
 

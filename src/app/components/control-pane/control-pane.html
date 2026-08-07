@@ -1,11 +1,22 @@
-<div class="w-[380px] max-md:w-full bg-(--color-panel-bg) border-l border-(--color-border) max-md:border-l-0 max-md:border-t-0 overflow-y-auto max-md:overflow-visible flex flex-col max-md:h-auto max-md:pb-[80px]">
+<div class="w-[380px] md:w-[380px] w-full bg-(--color-panel-bg) border-l border-(--color-border) md:border-l md:border-t-0 border-l-0 border-t overflow-y-auto md:overflow-auto overflow-visible flex flex-col h-auto md:h-full pb-[220px] md:pb-0 relative">
   
-  <div class="p-[15px] border-b border-(--color-border) bg-[#eef3fb]" style="border-bottom: 2px solid #ccdbe8">
-    <app-mode-selector></app-mode-selector>
+  <div class="bg-white p-[15px] max-md:fixed max-md:bottom-0 max-md:left-0 max-md:w-full max-md:z-[100] max-md:shadow-[0_-5px_20px_rgba(0,0,0,0.1)] border-b border-(--color-border) flex flex-col gap-4 order-first md:order-none">
+    <app-file-uploader></app-file-uploader>
+    <app-export-panel></app-export-panel>
   </div>
 
-  <div class="p-[15px] border-b border-(--color-border)">
-    <app-file-uploader></app-file-uploader>
+  @if (stateService.files().length > 1) {
+    <div class="p-[15px] border-b border-(--color-border) bg-[#fff] flex justify-between items-center sticky top-0 z-10 md:static shadow-sm md:shadow-none">
+      <div class="text-[13px] font-bold text-[#555]">浮水印套用設定</div>
+      <div class="flex bg-[#f0f0f0] rounded overflow-hidden border border-[#ccc]">
+        <button [class]="getApplyModeClass('unified')" (click)="stateService.toggleApplyMode('unified')" class="px-3 py-1.5 text-[13px] cursor-pointer transition-colors border-none outline-none">統一設定</button>
+        <button [class]="getApplyModeClass('independent')" (click)="stateService.toggleApplyMode('independent')" class="px-3 py-1.5 text-[13px] cursor-pointer transition-colors border-none outline-none border-l border-[#ccc]">獨立設定</button>
+      </div>
+    </div>
+  }
+
+  <div class="p-[15px] border-b border-(--color-border) bg-[#eef3fb]" style="border-bottom: 2px solid #ccdbe8">
+    <app-mode-selector></app-mode-selector>
   </div>
 
   <div class="p-[15px] border-b border-(--color-border)">
@@ -19,7 +30,5 @@
   <div class="p-[15px] border-b border-(--color-border)">
     <app-position-density></app-position-density>
   </div>
-
-  <app-export-panel></app-export-panel>
 
 </div>

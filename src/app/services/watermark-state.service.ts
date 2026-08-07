@@ -17,6 +17,7 @@ export interface WatermarkParams {
   gap: number;
   pos: string;
   mask: Mask | null;
+  customPos: {x: number, y: number} | null;
 }
 
 @Injectable({
@@ -25,7 +26,13 @@ export interface WatermarkParams {
 export class WatermarkStateService {
   // 來源檔案與預覽
   files = signal<File[]>([]);
+  filePreviews = signal<string[]>([]);
   previewImageSrc = signal<string | null>(null);
+  activeIndex = signal<number>(0);
+  
+  // 狀態套用模式
+  applyMode = signal<'unified' | 'independent'>('unified');
+  savedParams = signal<WatermarkParams[]>([]);
 
   // 模式設定
   usageMode = signal<'general' | 'idcard'>('general');
@@ -41,6 +48,7 @@ export class WatermarkStateService {
   
   // 位置與間距
   watermarkPos = signal<string>('middle-center');
+  watermarkCustomPos = signal<{x: number, y: number} | null>(null);
   watermarkGap = signal<number>(150);
   safeZoneMask = signal<Mask | null>(null);
 
@@ -63,7 +71,48 @@ export class WatermarkStateService {
       opacity: this.watermarkOpacity() / 100, // convert 0-100 to 0-1
       gap: this.watermarkGap(),
       pos: this.watermarkPos(),
-      mask: this.isIdCardMode() ? this.safeZoneMask() : null
+      mask: this.isIdCardMode() ? this.safeZoneMask() : null,
+      customPos: this.watermarkCustomPos()
     };
+  }
+
+  saveCurrentParams() {
+    const p = this.getParams();
+    const arr = [...this.savedParams()];
+    arr[this.activeIndex()] = p;
+    this.savedParams.set(arr);
+  }
+
+  switchFile(index: number) {
+    if (index < 0 || index >= this.files().length) return;
+    
+    if (this.applyMode() === 'independent') {
+      this.saveCurrentParams();
+      const newParams = this.savedParams()[index];
+      if (newParams) {
+        this.watermarkText.set(newParams.text);
+        this.watermarkFont.set(newParams.font);
+        this.watermarkColor.set(newParams.color);
+        this.watermarkSize.set(newParams.size);
+        this.watermarkRotate.set(newParams.rotate);
+        this.watermarkOpacity.set(newParams.opacity * 100);
+        this.watermarkGap.set(newParams.gap);
+        this.watermarkPos.set(newParams.pos);
+        this.safeZoneMask.set(newParams.mask);
+        this.watermarkCustomPos.set(newParams.customPos);
+      }
+    }
+    
+    this.activeIndex.set(index);
+    this.previewImageSrc.set(this.filePreviews()[index] || null);
+  }
+
+  toggleApplyMode(mode: 'unified' | 'independent') {
+    this.applyMode.set(mode);
+    if (mode === 'independent') {
+      // 複製當前設定給所有檔案
+      const current = this.getParams();
+      this.savedParams.set(this.files().map(() => ({ ...current })));
+    }
   }
 }

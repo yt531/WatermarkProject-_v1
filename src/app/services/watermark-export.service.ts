@@ -42,13 +42,18 @@ export class WatermarkExportService {
       const h = parts[1];
       const margin = fontSize;
 
-      if (h === 'left') x = margin + textW / 2;
-      else if (h === 'right') x = width - margin - textW / 2;
-      else x = width / 2;
+      if (p.customPos) {
+        x = p.customPos.x;
+        y = p.customPos.y;
+      } else {
+        if (h === 'left') x = margin + textW / 2;
+        else if (h === 'right') x = width - margin - textW / 2;
+        else x = width / 2;
 
-      if (v === 'top') y = margin + fontSize / 2;
-      else if (v === 'bottom') y = height - margin - fontSize / 2;
-      else y = height / 2;
+        if (v === 'top') y = margin + fontSize / 2;
+        else if (v === 'bottom') y = height - margin - fontSize / 2;
+        else y = height / 2;
+      }
 
       targetCtx.translate(x, y);
       targetCtx.rotate((p.rotate * Math.PI) / 180);
@@ -92,10 +97,20 @@ export class WatermarkExportService {
         const file = files[i];
         statusCallback(`正在處理 (${i + 1}/${files.length}): ${file.name}`);
 
+        let currentParams = p;
+        if (this.stateService.applyMode() === 'independent') {
+          // If exporting the active index, use current signals to catch latest unsaved changes.
+          if (i === this.stateService.activeIndex()) {
+             currentParams = this.stateService.getParams();
+          } else {
+             currentParams = this.stateService.savedParams()[i] || p;
+          }
+        }
+
         if (file.type === 'application/pdf') {
           if (outFormat === 'png' || outFormat === 'jpg') {
             const mime = outFormat === 'jpg' ? 'image/jpeg' : 'image/png';
-            const blobs = await this.processPdfToImages(file, p, mime);
+            const blobs = await this.processPdfToImages(file, currentParams, mime);
             blobs.forEach((blob, index) => {
               const nameParts = file.name.split('.');
               nameParts.pop();
@@ -104,7 +119,7 @@ export class WatermarkExportService {
             });
             totalOutputCount += blobs.length;
           } else {
-            const blob = await this.processPDF(file, p);
+            const blob = await this.processPDF(file, currentParams);
             const nameParts = file.name.split('.');
             nameParts.pop();
             zip.file(`${nameParts.join('.')}_wm.pdf`, blob);
@@ -117,14 +132,14 @@ export class WatermarkExportService {
         } else {
           let ext = '', blob: Blob;
           if (outFormat === 'pdf') {
-            const imgBlob = await this.processImage(file, p, 'image/jpeg');
+            const imgBlob = await this.processImage(file, currentParams, 'image/jpeg');
             blob = await this.createPdfFromImage(imgBlob);
             ext = 'pdf';
           } else {
             let mimeType = file.type;
             if (outFormat === 'jpg') mimeType = 'image/jpeg';
             if (outFormat === 'png') mimeType = 'image/png';
-            blob = await this.processImage(file, p, mimeType);
+            blob = await this.processImage(file, currentParams, mimeType);
             if (outFormat !== 'auto') ext = outFormat;
             else ext = file.type.split('/')[1];
             if (ext === 'jpeg') ext = 'jpg';

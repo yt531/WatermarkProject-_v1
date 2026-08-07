@@ -1,12 +1,72 @@
-<div class="flex-1 max-md:flex-none max-md:h-[50vh] max-md:border-b-2 max-md:border-[#ddd] max-md:overscroll-none bg-[#e3e5e8] flex flex-col items-center justify-center p-5 overflow-auto relative touch-none" id="previewPane">
+<div class="flex-1 md:flex-none md:flex-1 h-auto md:h-full bg-[#e3e5e8] flex flex-col items-center justify-center p-0 md:p-5 relative touch-none sticky top-0 z-10 md:static md:z-auto max-h-[45vh] md:max-h-full overflow-hidden" id="previewPane">
   @if (!stateService.isLoaded()) {
-    <div class="text-[#666]">請從右側選單載入檔案</div>
-  }
+    <div class="text-[#666] hidden md:block">請從右側選單載入檔案</div>
+  } @else {
+    
+    <div class="w-full h-full flex items-center relative">
+      @if (stateService.files().length > 1) {
+        <button (click)="prevImage()" class="hidden md:flex absolute left-4 z-20 w-10 h-10 bg-white/80 rounded-full shadow items-center justify-center cursor-pointer hover:bg-white text-[#333] transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+        </button>
+      }
 
-  <div class="relative max-w-[800px] shadow-md w-full flex justify-center items-center bg-white max-md:min-h-[300px] overflow-hidden">
-    <canvas #previewCanvas class="max-w-full block bg-white max-h-[70vh]"></canvas>
-    @if (stateService.usageMode() === 'idcard') {
-      <app-safe-zone-box></app-safe-zone-box>
+      <div #carouselContainer (scroll)="onScroll($event)" class="flex w-full h-full overflow-x-auto snap-x snap-mandatory scroll-smooth touch-pan-x" style="scrollbar-width: none;">
+        @for (file of stateService.files(); track $index) {
+          <div class="min-w-full flex justify-center items-center snap-center relative p-2 md:p-0">
+             <div class="relative max-w-[800px] shadow-md w-full flex justify-center items-center bg-white min-h-[150px] md:min-h-[300px] overflow-hidden group">
+                @if (stateService.activeIndex() === $index) {
+                  <canvas #previewCanvas 
+                    class="max-w-full block bg-white max-h-[70vh]"
+                    [class.cursor-move]="stateService.watermarkMode() === 'single'"
+                    (mousedown)="onPointerDown($event)"
+                    (mousemove)="onPointerMove($event)"
+                    (mouseup)="onPointerUp()"
+                    (mouseleave)="onPointerUp()"
+                    (touchstart)="onPointerDown($event)"
+                    (touchmove)="onPointerMove($event)"
+                    (touchend)="onPointerUp()"
+                    (touchcancel)="onPointerUp()"></canvas>
+                  @if (stateService.usageMode() === 'idcard') {
+                    <app-safe-zone-box></app-safe-zone-box>
+                  }
+                  
+                  <button (click)="openFullscreen()" class="absolute top-2 right-2 p-2 bg-black/50 text-white rounded hover:bg-black/70 opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-20 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                  </button>
+                } @else {
+                  <img [src]="stateService.filePreviews()[$index]" class="max-w-full block bg-white max-h-[70vh] object-contain opacity-50 transition-opacity" />
+                }
+             </div>
+          </div>
+        }
+      </div>
+
+      @if (stateService.files().length > 1) {
+        <button (click)="nextImage()" class="hidden md:flex absolute right-4 z-20 w-10 h-10 bg-white/80 rounded-full shadow items-center justify-center cursor-pointer hover:bg-white text-[#333] transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        </button>
+      }
+    </div>
+
+    @if (stateService.files().length > 1) {
+      <div class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-[12px] shadow pointer-events-none z-20">
+        {{ stateService.activeIndex() + 1 }} / {{ stateService.files().length }}
+      </div>
     }
-  </div>
+  }
 </div>
+
+@if (isFullscreen) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex justify-center items-center p-4">
+    <button (click)="isFullscreen = false" class="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[60] cursor-pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="relative w-full h-full flex justify-center items-center p-4">
+      <img [src]="modalImageSrc" class="max-w-full max-h-full object-contain shadow-2xl" alt="Fullscreen preview" />
+    </div>
+  </div>
+}

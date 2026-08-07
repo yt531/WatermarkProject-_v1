@@ -1,9 +1,9 @@
-<div class="p-[15px] mt-auto border-t border-(--color-border) bg-[#f9f9f9] max-md:fixed max-md:bottom-0 max-md:left-0 max-md:w-full max-md:z-[100] max-md:shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+<div class="w-full">
   <div class="mb-2.5">
     <label class="text-[13px] font-bold text-[#555]">輸出檔名設定：</label>
     <div class="flex gap-[5px] mt-[5px]">
-      <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="flex-[2] py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0">
-      <select [value]="stateService.outputFormat()" (change)="updateFormat($event)" class="flex-[1] py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0 max-md:min-h-[44px]">
+      <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="flex-[2] py-2 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0">
+      <select [value]="stateService.outputFormat()" (change)="updateFormat($event)" class="flex-[1] py-2 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0 max-md:min-h-[44px]">
         <option value="auto">自動</option>
         <option value="png">PNG</option>
         <option value="jpg">JPG</option>
@@ -11,10 +11,13 @@
       </select>
     </div>
   </div>
-  <button class="w-full p-3 bg-[#28a745] text-white border-none rounded text-[16px] font-bold cursor-pointer disabled:bg-[#ccc] disabled:cursor-not-allowed"
+  <button class="w-full p-3 bg-[#28a745] hover:bg-[#218838] transition-colors text-white border-none rounded text-[16px] font-bold cursor-pointer disabled:bg-[#ccc] disabled:cursor-not-allowed flex items-center justify-center gap-2"
           [disabled]="!stateService.isLoaded() || isProcessing"
           (click)="processAll()">
-    {{ isProcessing ? '處理中...' : '另存新檔' }}
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+    </svg>
+    {{ isProcessing ? '處理中...' : '下載檔案' }}
   </button>
-  <div class="text-center text-[12px] mt-[5px]">{{ statusMsg }}</div>
+  <div class="text-center text-[12px] mt-[5px] text-[#666]">{{ statusMsg }}</div>
 </div>

@@ -1,7 +1,12 @@
-<label class="bg-(--color-primary) hover:bg-[#1e3f72] text-white text-center p-2 cursor-pointer rounded text-[14px] block max-md:min-h-[44px]">
-  📂 選擇檔案 (支援多選)
-  <input type="file" class="hidden" accept=".jpg,.png,.pdf" multiple (change)="handleFiles($event)" />
-</label>
-<div class="text-[12px] mt-[5px] text-[#666] text-center">
-  {{ fileInfoText() }}
+<div class="w-full">
+  <label class="bg-(--color-primary) hover:bg-[#1e3f72] text-white text-center p-3 cursor-pointer rounded text-[16px] font-bold block max-md:min-h-[44px] flex items-center justify-center gap-2 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+    </svg>
+    上傳檔案
+    <input type="file" class="hidden" accept="image/*, application/pdf" multiple (change)="handleFiles($event)" />
+  </label>
+  <div class="text-[12px] mt-[5px] text-[#666] text-center font-medium">
+    {{ fileInfoText() }}
+  </div>
 </div>
