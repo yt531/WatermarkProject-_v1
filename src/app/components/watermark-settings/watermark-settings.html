@@ -12,13 +12,36 @@
     <input type="text" [value]="stateService.watermarkText()" (input)="updateText($event)" 
            class="w-full py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
   </div>
-  <div class="flex items-center mb-2 gap-2">
-    <select [value]="stateService.watermarkFont()" (change)="updateFont($event)"
-            class="w-full py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
-      <option value="Arial">Arial (無襯線)</option>
-      <option value="Times New Roman">Times (襯線)</option>
-      <option value="Courier New">Courier (等寬)</option>
-      <option value="Microsoft JhengHei">微軟正黑體</option>
-    </select>
+  <div class="relative w-full">
+    <button (click)="toggleFontDropdown()"
+            class="w-full flex items-center justify-between py-1.5 px-3 border border-[#888] rounded text-[13px] bg-white hover:bg-gray-50 focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px] cursor-pointer transition-colors text-left"
+            [style.font-family]="stateService.watermarkFont()">
+      <span>{{ currentFontLabel }}</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 transition-transform duration-200" [class.rotate-180]="isFontDropdownOpen" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+
+    @if (isFontDropdownOpen) {
+      <div class="fixed inset-0 z-40" (click)="isFontDropdownOpen = false"></div>
+      <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden py-1">
+        @for (font of fonts; track font.value) {
+          <button (click)="selectFont(font.value)"
+                  class="w-full flex items-center justify-between px-3 py-2 text-[13px] hover:bg-(--color-primary) hover:text-white cursor-pointer transition-colors text-left group"
+                  [class.bg-blue-50]="stateService.watermarkFont() === font.value"
+                  [class.text-(--color-primary)]="stateService.watermarkFont() === font.value"
+                  [style.font-family]="font.value">
+            <span>
+              {{ font.label }} <span class="text-xs opacity-70 ml-1">{{ font.sub }}</span>
+            </span>
+            @if (stateService.watermarkFont() === font.value) {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </button>
+        }
+      </div>
+    }
   </div>
 </fieldset>

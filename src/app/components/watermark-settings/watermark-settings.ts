@@ -9,6 +9,15 @@ import { WatermarkStateService } from '../../services/watermark-state.service';
 export class WatermarkSettingsComponent {
   stateService = inject(WatermarkStateService);
 
+  fonts = [
+    { value: 'Arial', label: 'Arial', sub: '(無襯線)' },
+    { value: 'Times New Roman', label: 'Times', sub: '(襯線)' },
+    { value: 'Courier New', label: 'Courier', sub: '(等寬)' },
+    { value: 'Microsoft JhengHei', label: '微軟正黑體', sub: '' }
+  ];
+
+  isFontDropdownOpen = false;
+
   getModeBtnClass(mode: 'single' | 'tiled') {
     const base = 'flex-1 border-none p-1.5 cursor-pointer text-[13px] max-md:min-h-[44px] max-md:text-[14px] ';
     if (this.stateService.watermarkMode() === mode) {
@@ -21,7 +30,17 @@ export class WatermarkSettingsComponent {
     this.stateService.watermarkText.set((event.target as HTMLInputElement).value);
   }
 
-  updateFont(event: Event) {
-    this.stateService.watermarkFont.set((event.target as HTMLSelectElement).value);
+  toggleFontDropdown() {
+    this.isFontDropdownOpen = !this.isFontDropdownOpen;
+  }
+
+  selectFont(fontValue: string) {
+    this.stateService.watermarkFont.set(fontValue);
+    this.isFontDropdownOpen = false;
+  }
+
+  get currentFontLabel(): string {
+    const font = this.fonts.find(f => f.value === this.stateService.watermarkFont());
+    return font ? `${font.label} ${font.sub}`.trim() : this.stateService.watermarkFont();
   }
 }
