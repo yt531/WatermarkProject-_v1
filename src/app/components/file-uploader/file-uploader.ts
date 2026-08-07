@@ -12,14 +12,19 @@ export class FileUploaderComponent {
   fileInfoText = computed(() => {
     const files = this.stateService.files();
     if (files.length === 0) return '尚未選擇';
-    return `已選擇 ${files.length} 個檔案`;
+    return `目前檔案: ${files[0].name}`;
   });
 
   async handleFiles(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     
-    const filesArray = Array.from(input.files);
+    // 暫時停用多檔功能：只取第一個選擇的檔案
+    const filesArray = Array.from(input.files).slice(0, 1);
+    
+    // Reset the input value so the same file can be uploaded again
+    input.value = '';
+
     this.stateService.files.set(filesArray);
     
     // reset mode to unified when new files are uploaded
@@ -33,11 +38,9 @@ export class FileUploaderComponent {
         const url = await this.renderPdfToPreview(file);
         previews.push(url);
       } else {
-        const url = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve((e.target?.result as string) || '');
-          reader.readAsDataURL(file);
-        });
+        // Use URL.createObjectURL instead of FileReader to prevent mobile browsers
+        // from crashing or dropping the image due to massive base64 string memory usage.
+        const url = URL.createObjectURL(file);
         previews.push(url);
       }
     }

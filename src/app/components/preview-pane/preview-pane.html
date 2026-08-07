@@ -1,11 +1,10 @@
 <div
-  class="flex-1 md:flex-none md:flex-1 h-auto md:h-full bg-[#e3e5e8] flex flex-col items-center justify-center p-0 md:p-5 relative touch-none sticky top-0 z-10 md:static md:z-auto max-h-[45vh] md:max-h-full overflow-hidden"
+  class="w-full h-full bg-[#e3e5e8] flex flex-col relative touch-none overflow-hidden"
   id="previewPane">
-  @if (!stateService.isLoaded()) {
-  <div class="text-[#666] hidden md:block">請從右側選單載入檔案</div>
-  } @else {
+  
+  <div class="text-[#666] hidden w-full h-full items-center justify-center" [class.md:flex]="!stateService.isLoaded()" [class.flex]="!stateService.isLoaded()">請從右側選單載入檔案</div>
 
-  <div class="w-full h-full flex items-center relative">
+  <div class="w-full h-full flex items-center relative" [class.hidden]="!stateService.isLoaded()">
     @if (stateService.files().length > 1 && stateService.activeIndex() > 0) {
     <button (click)="prevImage()"
       class="flex absolute left-2 md:left-4 z-20 w-8 h-8 md:w-10 md:h-10 bg-white/80 rounded-full shadow items-center justify-center cursor-pointer hover:bg-white text-[#333] transition-colors">
@@ -16,14 +15,15 @@
     </button>
     }
 
-    <div class="flex w-full h-full justify-center items-center p-2 md:p-0">
+    <div class="flex-1 w-full h-full flex justify-center items-center p-2 md:p-5">
       <div
-        class="relative max-w-[800px] shadow-md w-full flex justify-center items-center bg-white min-h-[150px] md:min-h-[300px] overflow-hidden group">
-        <canvas #previewCanvas class="max-w-full block bg-white max-h-[70vh]"
+        class="relative shadow-md w-full h-full max-w-[800px] flex justify-center items-center bg-white min-h-[150px] overflow-hidden group">
+        <canvas #previewCanvas class="w-full h-full block bg-white object-contain"
           [class.cursor-move]="stateService.watermarkMode() === 'single'" (mousedown)="onPointerDown($event)"
           (mousemove)="onPointerMove($event)" (mouseup)="onPointerUp()" (mouseleave)="onPointerUp()"
           (touchstart)="onPointerDown($event)" (touchmove)="onPointerMove($event)" (touchend)="onPointerUp()"
           (touchcancel)="onPointerUp()"></canvas>
+        
         @if (stateService.usageMode() === 'idcard') {
         <app-safe-zone-box></app-safe-zone-box>
         }
@@ -56,12 +56,11 @@
     {{ stateService.activeIndex() + 1 }} / {{ stateService.files().length }}
   </div>
   }
-  }
 </div>
 
 @if (isFullscreen()) {
 <div class="fixed inset-0 z-50 bg-black/90 flex justify-center items-center p-4">
-  <button (click)="isFullscreen.set(false)"
+  <button (click)="closeFullscreen()"
     class="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[60] cursor-pointer">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
       class="w-8 h-8">

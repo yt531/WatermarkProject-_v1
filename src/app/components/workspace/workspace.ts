@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { PreviewPaneComponent } from '../preview-pane/preview-pane';
 import { ControlPaneComponent } from '../control-pane/control-pane';
 
@@ -8,4 +8,10 @@ import { ControlPaneComponent } from '../control-pane/control-pane';
   imports: [PreviewPaneComponent, ControlPaneComponent],
   templateUrl: './workspace.html'
 })
-export class WorkspaceComponent { }
+export class WorkspaceComponent {
+  activeTab = signal<'preview' | 'settings'>('preview');
+
+  setTab(tab: 'preview' | 'settings') {
+    this.activeTab.set(tab);
+  }
+}

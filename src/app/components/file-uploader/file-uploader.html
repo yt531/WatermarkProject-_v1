@@ -4,7 +4,8 @@
       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
     </svg>
     上傳檔案
-    <input type="file" class="hidden" accept="image/*, application/pdf" multiple (change)="handleFiles($event)" />
+    <!-- 暫時停用多檔上傳功能，移除 multiple 屬性 -->
+    <input type="file" class="hidden" accept="image/*, application/pdf" (change)="handleFiles($event)" />
   </label>
   <div class="text-[12px] mt-[5px] text-[#666] text-center font-medium">
     {{ fileInfoText() }}

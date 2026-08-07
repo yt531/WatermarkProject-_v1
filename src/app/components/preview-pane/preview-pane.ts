@@ -34,6 +34,13 @@ export class PreviewPaneComponent implements AfterViewInit {
     this.isFullscreen.set(true);
   }
 
+  closeFullscreen() {
+    this.isFullscreen.set(false);
+    // Redraw the canvas on the next frame to prevent the canvas from becoming blank on mobile browsers
+    // (due to canvas context loss or memory reclamation when displaying large base64 images).
+    requestAnimationFrame(() => this.drawCanvas());
+  }
+
   onPointerDown(e: MouseEvent | TouchEvent) {
     if (this.stateService.watermarkMode() !== 'single' || !this.stateService.isLoaded()) return;
 
@@ -178,6 +185,13 @@ export class PreviewPaneComponent implements AfterViewInit {
     effect(() => {
       const src = this.stateService.previewImageSrc();
       if (src) {
+        // Prevent flashing the old image by clearing the canvas buffer immediately
+        if (this.canvasRef && this.canvasRef.nativeElement) {
+           const canvas = this.canvasRef.nativeElement;
+           const ctx = canvas.getContext('2d');
+           if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
         this.previewImg.src = src;
         this.previewImg.onload = () => {
           this.drawCanvas();
@@ -208,10 +222,21 @@ export class PreviewPaneComponent implements AfterViewInit {
     }
 
     drawCanvas() {
-      if (!this.canvasRef) return;
+      if (!this.canvasRef) {
+        if (this.stateService.isLoaded()) {
+          setTimeout(() => this.drawCanvas(), 50);
+        }
+        return;
+      }
       const canvas = this.canvasRef.nativeElement;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+      
+      // Ensure the image is fully loaded before attempting to draw.
+      // If width is 0, setting canvas.width = 0 will clear the canvas and make it disappear.
+      if (!this.previewImg || !this.previewImg.complete || this.previewImg.width === 0) {
+        return;
+      }
 
       const maxDisplayW = 800;
       let scale = 1;
@@ -219,6 +244,7 @@ export class PreviewPaneComponent implements AfterViewInit {
 
       canvas.width = this.previewImg.width * scale;
       canvas.height = this.previewImg.height * scale;
+
       ctx.drawImage(this.previewImg, 0, 0, canvas.width, canvas.height);
 
       this.exportService.applyWatermarkToCanvas(ctx, canvas.width, canvas.height, this.stateService.getParams());

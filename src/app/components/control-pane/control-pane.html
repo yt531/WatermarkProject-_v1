@@ -1,8 +1,8 @@
-<div class="w-[380px] md:w-[380px] w-full bg-(--color-panel-bg) border-l border-(--color-border) md:border-l md:border-t-0 border-l-0 border-t overflow-y-auto md:overflow-auto overflow-visible flex flex-col h-auto md:h-full pb-[280px] md:pb-0 relative">
+<div class="w-full md:w-[380px] bg-(--color-panel-bg) flex flex-col h-full md:overflow-y-auto relative">
   
-  <div class="bg-white p-[15px] max-md:fixed max-md:bottom-0 max-md:left-0 max-md:w-full max-md:z-[100] max-md:shadow-[0_-5px_20px_rgba(0,0,0,0.1)] border-b border-(--color-border) flex flex-col gap-4 order-first md:order-none">
+  <!-- 1. 檔案輸入區 -->
+  <div class="bg-white p-[15px] border-b border-(--color-border) flex flex-col gap-4">
     <app-file-uploader></app-file-uploader>
-    <app-export-panel></app-export-panel>
   </div>
 
   @if (stateService.files().length > 1) {
@@ -15,6 +15,7 @@
     </div>
   }
 
+  <!-- 2. 核心設定區 -->
   <div class="p-[15px] border-b border-(--color-border) bg-[#eef3fb]" style="border-bottom: 2px solid #ccdbe8">
     <app-mode-selector></app-mode-selector>
   </div>
@@ -23,12 +24,18 @@
     <app-watermark-settings></app-watermark-settings>
   </div>
 
+  <!-- 3. 視覺與版面區 -->
   <div class="p-[15px] border-b border-(--color-border)">
     <app-appearance-settings></app-appearance-settings>
   </div>
 
   <div class="p-[15px] border-b border-(--color-border)">
     <app-position-density></app-position-density>
+  </div>
+
+  <!-- 4. 輸出與下載區 (最底) -->
+  <div class="bg-white p-[15px] border-t border-(--color-border) mt-auto shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
+    <app-export-panel></app-export-panel>
   </div>
 
 </div>
