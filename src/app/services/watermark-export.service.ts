@@ -92,6 +92,7 @@ export class WatermarkExportService {
       let singleResultBlob: Blob | null = null;
       let singleResultExt = '';
       let totalOutputCount = 0;
+      const outputFiles: File[] = [];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -115,14 +116,18 @@ export class WatermarkExportService {
               const nameParts = file.name.split('.');
               nameParts.pop();
               const pageNum = (index + 1).toString().padStart(2, '0');
-              zip.file(`${nameParts.join('.')}_page_${pageNum}.${outFormat}`, blob);
+              const fileName = `${nameParts.join('.')}_page_${pageNum}.${outFormat}`;
+              zip.file(fileName, blob);
+              outputFiles.push(new File([blob], fileName, { type: blob.type }));
             });
             totalOutputCount += blobs.length;
           } else {
             const blob = await this.processPDF(file, currentParams);
             const nameParts = file.name.split('.');
             nameParts.pop();
-            zip.file(`${nameParts.join('.')}_wm.pdf`, blob);
+            const fileName = `${nameParts.join('.')}_wm.pdf`;
+            zip.file(fileName, blob);
+            outputFiles.push(new File([blob], fileName, { type: blob.type }));
             if (files.length === 1) {
               singleResultBlob = blob;
               singleResultExt = 'pdf';
@@ -146,7 +151,9 @@ export class WatermarkExportService {
           }
           const nameParts = file.name.split('.');
           nameParts.pop();
-          zip.file(`${nameParts.join('.')}_wm.${ext}`, blob);
+          const fileName = `${nameParts.join('.')}_wm.${ext}`;
+          zip.file(fileName, blob);
+          outputFiles.push(new File([blob], fileName, { type: blob.type }));
           if (files.length === 1) {
             singleResultBlob = blob;
             singleResultExt = ext;
@@ -155,14 +162,38 @@ export class WatermarkExportService {
         }
       }
 
-      if (files.length === 1 && totalOutputCount === 1 && singleResultBlob) {
-        await this.saveFile(singleResultBlob, `${outName}.${singleResultExt}`, singleResultExt);
-      } else {
-        statusCallback('打包壓縮中...');
-        const content = await zip.generateAsync({ type: 'blob' });
-        await this.saveFile(content, `${outName}.zip`, 'zip');
+      const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      let shareSucceeded = false;
+
+      if (isMobile && navigator.canShare && navigator.canShare({ files: outputFiles })) {
+        try {
+          statusCallback('正在喚起系統分享...');
+          await navigator.share({
+            files: outputFiles,
+            title: '匯出的浮水印檔案'
+          });
+          statusCallback('儲存/分享完成！');
+          shareSucceeded = true;
+        } catch (error: any) {
+          if (error.name === 'AbortError') {
+            statusCallback('已取消分享。');
+            shareSucceeded = true; // Prevent fallback if intentionally cancelled
+          } else {
+            console.warn('Native share failed, falling back to download:', error);
+          }
+        }
       }
-      statusCallback('完成！');
+
+      if (!shareSucceeded) {
+        if (files.length === 1 && totalOutputCount === 1 && singleResultBlob) {
+          await this.saveFile(singleResultBlob, `${outName}.${singleResultExt}`, singleResultExt);
+        } else {
+          statusCallback('打包壓縮中...');
+          const content = await zip.generateAsync({ type: 'blob' });
+          await this.saveFile(content, `${outName}.zip`, 'zip');
+        }
+        statusCallback('完成！');
+      }
     } catch (error: any) {
       console.error(error);
       statusCallback(`發生錯誤: ${error.message}`);
