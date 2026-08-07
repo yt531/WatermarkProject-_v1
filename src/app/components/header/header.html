@@ -1,4 +1,16 @@
 <header class="bg-(--color-primary) text-white px-5 py-2.5 flex items-center justify-between shadow-[0_2px_5px_rgba(0,0,0,0.2)]">
-  <h1 class="m-0 text-[18px] font-normal">💧 專業浮水印工作室</h1>
-  <div class="text-[12px] opacity-80">全能旗艦版</div>
+  <div class="flex items-center gap-3">
+    <h1 class="m-0 text-[18px] font-normal">💧 專業浮水印工作室</h1>
+  </div>
+  
+  <div class="flex items-center gap-3">
+    <span *ngIf="statusMsg" class="text-[12px] opacity-80 hidden md:inline-block">{{ statusMsg }}</span>
+    <button 
+      (click)="processAll()"
+      [disabled]="isProcessing || !hasFiles"
+      class="bg-white text-(--color-primary) px-4 py-1.5 rounded text-[14px] font-bold cursor-pointer transition-all hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+      <span *ngIf="isProcessing">處理中...</span>
+      <span *ngIf="!isProcessing">匯出 / 儲存</span>
+    </button>
+  </div>
 </header>

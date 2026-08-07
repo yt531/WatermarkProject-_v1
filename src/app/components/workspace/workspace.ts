@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { PreviewPaneComponent } from '../preview-pane/preview-pane';
 import { ControlPaneComponent } from '../control-pane/control-pane';
 
@@ -9,9 +9,11 @@ import { ControlPaneComponent } from '../control-pane/control-pane';
   templateUrl: './workspace.html'
 })
 export class WorkspaceComponent {
-  activeTab = signal<'preview' | 'settings'>('preview');
+  @ViewChild('controlPane') controlPane!: ControlPaneComponent;
 
-  setTab(tab: 'preview' | 'settings') {
-    this.activeTab.set(tab);
+  onPreviewClick() {
+    if (this.controlPane) {
+      this.controlPane.closeMobileMenu();
+    }
   }
 }
