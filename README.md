@@ -1,59 +1,61 @@
-# Watermark
+# 圖片浮水印產生器 (Watermark Project)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.8.
+這是一個用於為圖片添加浮水印的網頁應用程式，專注於提供流暢的行動裝置與桌面端跨平台使用者體驗。
 
-## Development server
+## ✨ 核心功能
 
-To start a local development server, run:
+- **圖片浮水印處理**：支援為上傳的圖片快速添加自訂浮水印（文字或圖片）。
+- **行動優先 (Mobile-First) 設計**：針對手機與平板等行動裝置進行深度的版面最佳化，將預覽區域固定於上方，讓下方設定面板可順暢滾動。
+- **即時預覽**：調整浮水印的內容、字型、位置與大小時，可即時在預覽區看到最終效果，支援縮放檢視。
+- **現代化介面**：採用 Tailwind CSS 4 打造，提供簡潔、直覺且具備現代感的操作介面。
 
-```bash
-ng serve
-```
+## 🛠️ 技術堆疊
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **前端框架**：[Angular 22](https://angular.dev/)
+- **樣式框架**：[Tailwind CSS 4.3](https://tailwindcss.com/) (採用最新的 CSS-first `@theme` 設定)
+- **程式語言**：TypeScript 
+- **測試工具**：Vitest
 
-## Code scaffolding
+## 🚀 開發環境設置
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 系統需求
 
-```bash
-ng generate component component-name
-```
+請確保您的環境已安裝以下工具：
+- [Node.js](https://nodejs.org/) (建議使用 LTS 版本)
+- npm
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 安裝步驟
 
-```bash
-ng generate --help
-```
+1. 進入專案目錄：
+   ```bash
+   cd "WatermarkProject _v1"
+   ```
 
-## Building
+2. 安裝相依套件：
+   ```bash
+   npm install
+   ```
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 啟動開發伺服器
 
 ```bash
-ng test
+npm run start
 ```
+啟動後，請在瀏覽器中開啟 `http://localhost:4200/`。當您修改並儲存原始碼時，應用程式會自動重新載入。如需在實體手機上測試，請確保手機與電腦在同一區域網路，並使用 `ng serve --host 0.0.0.0` 啟動。
 
-## Running end-to-end tests
+## 📜 常用指令 (Scripts)
 
-For end-to-end (e2e) testing, run:
+在專案目錄中，您可以執行以下指令：
 
-```bash
-ng e2e
-```
+- `npm run start`: 啟動本地端開發伺服器。
+- `npm run build`: 編譯專案。輸出檔案會存放於 `dist/` 目錄，預設為生產環境最佳化建置。
+- `npm run test`: 執行單元測試 (Vitest)。
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📝 近期更新摘要
 
-## Additional Resources
+- **環境升級**：完成 Angular 22 與 Tailwind CSS 4.3 的升級遷移。
+- **行動端版面重構**：解決了預覽區與控制面板（如「上傳檔案」、「位置設定」）在手機版面重疊的問題，並優化了滾動體驗。
+- **浮水印模式選擇**：實作並優化了切換不同浮水印模式（單一/滿版等）的介面與邏輯。
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+*此專案初始使用 [Angular CLI](https://github.com/angular/angular-cli) version 22.0.8 建立。*
