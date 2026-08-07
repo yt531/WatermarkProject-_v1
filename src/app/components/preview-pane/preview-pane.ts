@@ -192,10 +192,10 @@ export class PreviewPaneComponent implements AfterViewInit {
            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
         
-        this.previewImg.src = src;
         this.previewImg.onload = () => {
           this.drawCanvas();
         };
+        this.previewImg.src = src;
       }
     });
 

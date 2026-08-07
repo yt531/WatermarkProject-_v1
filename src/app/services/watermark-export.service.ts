@@ -237,7 +237,6 @@ export class WatermarkExportService {
   processImage(file: File, p: WatermarkParams, mimeType: string | null): Promise<Blob> {
     return new Promise((resolve) => {
       const img = new Image();
-      img.src = URL.createObjectURL(file);
       img.onload = () => {
         const c = document.createElement('canvas');
         const x = c.getContext('2d')!;
@@ -248,6 +247,7 @@ export class WatermarkExportService {
         const outputType = mimeType || file.type;
         c.toBlob((b) => resolve(b!), outputType, 0.9);
       };
+      img.src = URL.createObjectURL(file);
     });
   }
 
