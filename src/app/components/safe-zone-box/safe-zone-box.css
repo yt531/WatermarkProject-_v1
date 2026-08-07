@@ -1,3 +1,5 @@
+@reference "../../../../styles.css";
+
 .resize-handle {
   @apply absolute bg-white border border-red-500 shadow-[0_0_2px_rgba(0,0,0,0.3)] z-[11];
   width: 10px;
