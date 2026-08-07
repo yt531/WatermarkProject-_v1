@@ -11,8 +11,8 @@ export class FileUploaderComponent {
 
   fileInfoText = computed(() => {
     const files = this.stateService.files();
-    if (files.length === 0) return '尚未?��?';
-    return `已選??${files.length} ?��?案`;
+    if (files.length === 0) return '尚未選擇';
+    return `已選擇 ${files.length} 個檔案`;
   });
 
   async handleFiles(event: Event) {

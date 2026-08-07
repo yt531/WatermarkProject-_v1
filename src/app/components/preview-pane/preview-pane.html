@@ -3,13 +3,9 @@
     <div class="text-[#666]">請從右側選單載入檔案</div>
   }
 
-  <div class="relative inline-block">
-    <canvas #previewCanvas 
-            class="shadow-[0_0_20px_rgba(0,0,0,0.15)] bg-white max-w-full max-h-full border border-[#ccc] pointer-events-none" 
-            [class.hidden]="!stateService.isLoaded()">
-    </canvas>
-
-    @if (stateService.isIdCardMode() && stateService.isLoaded()) {
+  <div class="relative max-w-[800px] shadow-md w-full flex justify-center items-center bg-white max-md:min-h-[300px] overflow-hidden">
+    <canvas #previewCanvas class="max-w-full block bg-white max-h-[70vh]"></canvas>
+    @if (stateService.usageMode() === 'idcard') {
       <app-safe-zone-box></app-safe-zone-box>
     }
   </div>
