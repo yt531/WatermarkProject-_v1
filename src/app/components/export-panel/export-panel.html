@@ -1,6 +1,6 @@
 <div class="w-full">
   <div class="mb-2.5">
-    <label class="text-[13px] font-bold text-[#555]">輸出檔名設定：</label>
+    <label class="text-[13px] font-bold text-[#555]">匯出檔名設定：</label>
     <div class="flex gap-[5px] mt-[5px]">
       <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="flex-[2] py-2 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0">
       <select [value]="stateService.outputFormat()" (change)="updateFormat($event)" class="flex-[1] py-2 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0 max-md:min-h-[44px]">
@@ -17,7 +17,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
     </svg>
-    {{ isProcessing ? '處理中...' : '下載檔案' }}
+    {{ isProcessing ? '處理中...' : '匯出檔案' }}
   </button>
   <div class="text-center text-[12px] mt-[5px] text-[#666]">{{ statusMsg }}</div>
 </div>

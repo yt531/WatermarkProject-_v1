@@ -6,7 +6,7 @@
     <!-- 1. 背景圖 (Upload) -->
     <div [class]="getPanelClass('upload')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
-        <span class="font-bold text-[14px]">背景圖</span>
+        <span class="font-bold text-[14px]">匯入</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
         </button>
@@ -72,7 +72,7 @@
     <!-- 5. 輸出 (Export) -->
     <div [class]="getPanelClass('export')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
-        <span class="font-bold text-[14px]">輸出設定</span>
+        <span class="font-bold text-[14px]">匯出設定</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
         </button>
@@ -86,8 +86,8 @@
   <!-- Mobile Bottom Menu Bar -->
   <div class="md:hidden fixed bottom-0 left-0 right-0 h-[80px] bg-white border-t border-gray-200 flex z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-safe pointer-events-auto">
     <button [class]="getMenuBtnClass('upload')" (click)="toggleMobileMenu('upload')">
-      <div class="text-[20px]">🖼️</div>
-      <span class="text-[11px] font-medium">背景圖</span>
+      <div class="text-[20px]">📂</div>
+      <span class="text-[11px] font-medium">匯入</span>
     </button>
     <button [class]="getMenuBtnClass('content')" (click)="toggleMobileMenu('content')">
       <div class="text-[20px]">📝</div>
@@ -102,8 +102,8 @@
       <span class="text-[11px] font-medium">版面</span>
     </button>
     <button [class]="getMenuBtnClass('export')" (click)="toggleMobileMenu('export')">
-      <div class="text-[20px]">💾</div>
-      <span class="text-[11px] font-medium">輸出</span>
+      <div class="text-[20px]">📤</div>
+      <span class="text-[11px] font-medium">匯出</span>
     </button>
   </div>
 
