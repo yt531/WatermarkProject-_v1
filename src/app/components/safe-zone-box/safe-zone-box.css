@@ -1,0 +1,31 @@
+.resize-handle {
+  @apply absolute bg-white border border-red-500 shadow-[0_0_2px_rgba(0,0,0,0.3)] z-[11];
+  width: 10px;
+  height: 10px;
+}
+.n { top: -5px; left: 50%; margin-left: -5px; cursor: n-resize; }
+.s { bottom: -5px; left: 50%; margin-left: -5px; cursor: s-resize; }
+.w { left: -5px; top: 50%; margin-top: -5px; cursor: w-resize; }
+.e { right: -5px; top: 50%; margin-top: -5px; cursor: e-resize; }
+.nw { top: -5px; left: -5px; cursor: nw-resize; }
+.ne { top: -5px; right: -5px; cursor: ne-resize; }
+.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+.se { bottom: -5px; right: -5px; cursor: se-resize; }
+
+@media (max-width: 768px) {
+  .resize-handle {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+  .n { top: -12px; margin-left: -12px; }
+  .s { bottom: -12px; margin-left: -12px; }
+  .w { left: -12px; margin-top: -12px; }
+  .e { right: -12px; margin-top: -12px; }
+  .nw { top: -12px; left: -12px; }
+  .ne { top: -12px; right: -12px; }
+  .sw { bottom: -12px; left: -12px; }
+  .se { bottom: -12px; right: -12px; }
+}

@@ -1,0 +1,16 @@
+<div class="flex-1 max-md:flex-none max-md:h-[50vh] max-md:border-b-2 max-md:border-[#ddd] max-md:overscroll-none bg-[#e3e5e8] flex flex-col items-center justify-center p-5 overflow-auto relative touch-none" id="previewPane">
+  @if (!stateService.isLoaded()) {
+    <div class="text-[#666]">請從右側選單載入檔案</div>
+  }
+
+  <div class="relative inline-block">
+    <canvas #previewCanvas 
+            class="shadow-[0_0_20px_rgba(0,0,0,0.15)] bg-white max-w-full max-h-full border border-[#ccc] pointer-events-none" 
+            [class.hidden]="!stateService.isLoaded()">
+    </canvas>
+
+    @if (stateService.isIdCardMode() && stateService.isLoaded()) {
+      <app-safe-zone-box></app-safe-zone-box>
+    }
+  </div>
+</div>
