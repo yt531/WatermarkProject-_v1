@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, effect, inject, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, effect, inject, signal, AfterViewInit } from '@angular/core';
 import { WatermarkStateService, WatermarkParams } from '../../services/watermark-state.service';
 import { WatermarkExportService } from '../../services/watermark-export.service';
 import { SafeZoneBoxComponent } from '../safe-zone-box/safe-zone-box';
@@ -15,8 +15,8 @@ export class PreviewPaneComponent implements AfterViewInit {
   @ViewChild('previewCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private previewImg = new Image();
-  isFullscreen = false;
-  modalImageSrc = '';
+  isFullscreen = signal(false);
+  modalImageSrc = signal('');
 
   isDragging = false;
   dragStartX = 0;
@@ -30,8 +30,8 @@ export class PreviewPaneComponent implements AfterViewInit {
 
   openFullscreen() {
     if (!this.canvasRef) return;
-    this.modalImageSrc = this.canvasRef.nativeElement.toDataURL('image/png');
-    this.isFullscreen = true;
+    this.modalImageSrc.set(this.canvasRef.nativeElement.toDataURL('image/png'));
+    this.isFullscreen.set(true);
   }
 
   onPointerDown(e: MouseEvent | TouchEvent) {
