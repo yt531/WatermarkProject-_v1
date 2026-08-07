@@ -13,7 +13,7 @@ export class PreviewPaneComponent implements AfterViewInit {
   stateService = inject(WatermarkStateService);
   exportService = inject(WatermarkExportService);
   @ViewChild('previewCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
-  
+
   private previewImg = new Image();
   isFullscreen = false;
   modalImageSrc = '';
@@ -51,7 +51,7 @@ export class PreviewPaneComponent implements AfterViewInit {
     const p = this.stateService.getParams();
     const canvas = e.target as HTMLCanvasElement;
     if (!canvas || !canvas.getContext) return; // Ensure it's a canvas
-    
+
     if (p.customPos) {
       this.initialWatermarkX = p.customPos.x;
       this.initialWatermarkY = p.customPos.y;
@@ -62,7 +62,7 @@ export class PreviewPaneComponent implements AfterViewInit {
         const fontSize = basePx * (p.size / 50);
         ctx.font = `bold ${fontSize}px "${p.font}"`;
         const textW = ctx.measureText(p.text).width;
-        
+
         let x = 0, y = 0;
         const parts = p.pos.split('-');
         const v = parts[0];
@@ -76,7 +76,7 @@ export class PreviewPaneComponent implements AfterViewInit {
         if (v === 'top') y = margin + fontSize / 2;
         else if (v === 'bottom') y = canvas.height - margin - fontSize / 2;
         else y = canvas.height / 2;
-        
+
         this.initialWatermarkX = x;
         this.initialWatermarkY = y;
       }
@@ -88,7 +88,7 @@ export class PreviewPaneComponent implements AfterViewInit {
     const scaleY = canvas.height / rect.height;
     const touchX = (clientX - rect.left) * scaleX;
     const touchY = (clientY - rect.top) * scaleY;
-    
+
     const ctx = canvas.getContext('2d');
     const basePx = canvas.width / 20;
     const fontSize = basePx * (p.size / 50);
@@ -101,15 +101,15 @@ export class PreviewPaneComponent implements AfterViewInit {
 
     // Must hit the text
     if (Math.abs(touchX - this.initialWatermarkX) < halfW && Math.abs(touchY - this.initialWatermarkY) < halfH) {
-        this.isDragging = true;
+      this.isDragging = true;
     } else {
-        this.isDragging = false;
+      this.isDragging = false;
     }
   }
 
   onPointerMove(e: MouseEvent | TouchEvent) {
     if (!this.isDragging) return;
-    
+
     if (window.TouchEvent && e instanceof TouchEvent) {
       if (e.cancelable) e.preventDefault();
     }
@@ -191,35 +191,36 @@ export class PreviewPaneComponent implements AfterViewInit {
         requestAnimationFrame(() => this.drawCanvas());
       }
     });
-    
+  }
+
   prevImage() {
-    const idx = this.stateService.activeIndex();
-    if (idx > 0) {
-      this.stateService.switchFile(idx - 1);
+      const idx = this.stateService.activeIndex();
+      if (idx > 0) {
+        this.stateService.switchFile(idx - 1);
+      }
+    }
+
+    nextImage() {
+      const idx = this.stateService.activeIndex();
+      if (idx < this.stateService.files().length - 1) {
+        this.stateService.switchFile(idx + 1);
+      }
+    }
+
+    drawCanvas() {
+      if (!this.canvasRef) return;
+      const canvas = this.canvasRef.nativeElement;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const maxDisplayW = 800;
+      let scale = 1;
+      if (this.previewImg.width > maxDisplayW) scale = maxDisplayW / this.previewImg.width;
+
+      canvas.width = this.previewImg.width * scale;
+      canvas.height = this.previewImg.height * scale;
+      ctx.drawImage(this.previewImg, 0, 0, canvas.width, canvas.height);
+
+      this.exportService.applyWatermarkToCanvas(ctx, canvas.width, canvas.height, this.stateService.getParams());
     }
   }
-
-  nextImage() {
-    const idx = this.stateService.activeIndex();
-    if (idx < this.stateService.files().length - 1) {
-      this.stateService.switchFile(idx + 1);
-    }
-  }
-
-  drawCanvas() {
-    if (!this.canvasRef) return;
-    const canvas = this.canvasRef.nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const maxDisplayW = 800;
-    let scale = 1;
-    if (this.previewImg.width > maxDisplayW) scale = maxDisplayW / this.previewImg.width;
-
-    canvas.width = this.previewImg.width * scale;
-    canvas.height = this.previewImg.height * scale;
-    ctx.drawImage(this.previewImg, 0, 0, canvas.width, canvas.height);
-
-    this.exportService.applyWatermarkToCanvas(ctx, canvas.width, canvas.height, this.stateService.getParams());
-  }
-}
