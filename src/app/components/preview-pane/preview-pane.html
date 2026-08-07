@@ -6,7 +6,7 @@
   } @else {
 
   <div class="w-full h-full flex items-center relative">
-    @if (stateService.files().length > 1) {
+    @if (stateService.files().length > 1 && stateService.activeIndex() > 0) {
     <button (click)="prevImage()"
       class="flex absolute left-2 md:left-4 z-20 w-8 h-8 md:w-10 md:h-10 bg-white/80 rounded-full shadow items-center justify-center cursor-pointer hover:bg-white text-[#333] transition-colors">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    @if (stateService.files().length > 1) {
+    @if (stateService.files().length > 1 && stateService.activeIndex() < stateService.files().length - 1) {
     <button (click)="nextImage()"
       class="flex absolute right-2 md:right-4 z-20 w-8 h-8 md:w-10 md:h-10 bg-white/80 rounded-full shadow items-center justify-center cursor-pointer hover:bg-white text-[#333] transition-colors">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
