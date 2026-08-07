@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { PreviewPaneComponent } from '../preview-pane/preview-pane';
+import { ControlPaneComponent } from '../control-pane/control-pane';
 
 @Component({
   selector: 'app-workspace',
-  imports: [],
-  templateUrl: './workspace.html',
-  styleUrl: './workspace.css',
+  standalone: true,
+  imports: [PreviewPaneComponent, ControlPaneComponent],
+  templateUrl: './workspace.html'
 })
-export class Workspace {}
+export class WorkspaceComponent { }

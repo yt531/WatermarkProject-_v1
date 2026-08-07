@@ -1,1 +1,20 @@
-<p>export-panel works!</p>
+<div class="p-[15px] mt-auto border-t border-(--color-border) bg-[#f9f9f9] max-md:fixed max-md:bottom-0 max-md:left-0 max-md:w-full max-md:z-[100] max-md:shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+  <div class="mb-2.5">
+    <label class="text-[13px] font-bold text-[#555]">輸出檔名設定：</label>
+    <div class="flex gap-[5px] mt-[5px]">
+      <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="flex-[2] py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0">
+      <select [value]="stateService.outputFormat()" (change)="updateFormat($event)" class="flex-[1] py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none min-w-0 max-md:min-h-[44px]">
+        <option value="auto">自動</option>
+        <option value="png">PNG</option>
+        <option value="jpg">JPG</option>
+        <option value="pdf">PDF</option>
+      </select>
+    </div>
+  </div>
+  <button class="w-full p-3 bg-[#28a745] text-white border-none rounded text-[16px] font-bold cursor-pointer disabled:bg-[#ccc] disabled:cursor-not-allowed"
+          [disabled]="!stateService.isLoaded() || isProcessing"
+          (click)="processAll()">
+    {{ isProcessing ? '處理中...' : '另存新檔' }}
+  </button>
+  <div class="text-center text-[12px] mt-[5px]">{{ statusMsg }}</div>
+</div>

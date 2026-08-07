@@ -1,1 +1,7 @@
-<p>file-uploader works!</p>
+<label class="bg-(--color-primary) hover:bg-[#1e3f72] text-white text-center p-2 cursor-pointer rounded text-[14px] block max-md:min-h-[44px]">
+  📂 選擇檔案 (支援多選)
+  <input type="file" class="hidden" accept=".jpg,.png,.pdf" multiple (change)="handleFiles($event)" />
+</label>
+<div class="text-[12px] mt-[5px] text-[#666] text-center">
+  {{ fileInfoText() }}
+</div>

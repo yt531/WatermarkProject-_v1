@@ -1,1 +1,21 @@
-<p>watermark-settings works!</p>
+<div class="flex bg-[#eee] rounded p-[2px] mb-2.5">
+  <button [class]="getModeBtnClass('single')" (click)="stateService.watermarkMode.set('single')">單一浮水印</button>
+  <button [class]="getModeBtnClass('tiled')" (click)="stateService.watermarkMode.set('tiled')">鋪滿 (密集)</button>
+</div>
+
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
+  <legend class="text-[12px] text-(--color-primary) font-bold px-1">內容與字型</legend>
+  <div class="flex items-center mb-2 gap-2">
+    <input type="text" [value]="stateService.watermarkText()" (input)="updateText($event)" 
+           class="w-full py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
+  </div>
+  <div class="flex items-center mb-2 gap-2">
+    <select [value]="stateService.watermarkFont()" (change)="updateFont($event)"
+            class="w-full py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
+      <option value="Arial">Arial (無襯線)</option>
+      <option value="Times New Roman">Times (襯線)</option>
+      <option value="Courier New">Courier (等寬)</option>
+      <option value="Microsoft JhengHei">微軟正黑體</option>
+    </select>
+  </div>
+</fieldset>

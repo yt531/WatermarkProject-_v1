@@ -1,1 +1,30 @@
-<p>position-density works!</p>
+@if (stateService.watermarkMode() === 'single') {
+  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
+    <legend class="text-[12px] text-(--color-primary) font-bold px-1">位置設定</legend>
+    <div class="flex items-center gap-2">
+      <label class="text-[13px] min-w-[60px] text-[#444]">快速定位</label>
+      <div class="grid grid-cols-3 gap-1 w-[100px] max-md:w-full max-md:gap-2">
+        <button [class]="getGridBtnClass('top-left')" (click)="stateService.watermarkPos.set('top-left')"></button>
+        <button [class]="getGridBtnClass('top-center')" (click)="stateService.watermarkPos.set('top-center')"></button>
+        <button [class]="getGridBtnClass('top-right')" (click)="stateService.watermarkPos.set('top-right')"></button>
+        <button [class]="getGridBtnClass('middle-left')" (click)="stateService.watermarkPos.set('middle-left')"></button>
+        <button [class]="getGridBtnClass('middle-center')" (click)="stateService.watermarkPos.set('middle-center')"></button>
+        <button [class]="getGridBtnClass('middle-right')" (click)="stateService.watermarkPos.set('middle-right')"></button>
+        <button [class]="getGridBtnClass('bottom-left')" (click)="stateService.watermarkPos.set('bottom-left')"></button>
+        <button [class]="getGridBtnClass('bottom-center')" (click)="stateService.watermarkPos.set('bottom-center')"></button>
+        <button [class]="getGridBtnClass('bottom-right')" (click)="stateService.watermarkPos.set('bottom-right')"></button>
+      </div>
+    </div>
+  </fieldset>
+} @else {
+  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
+    <legend class="text-[12px] text-(--color-primary) font-bold px-1">密度設定 (鋪滿)</legend>
+    <div class="flex items-center gap-2">
+      <label class="text-[13px] min-w-[60px] text-[#444]">間距</label>
+      <div class="flex items-center w-full gap-[5px]">
+        <input type="range" min="50" max="500" [value]="stateService.watermarkGap()" (input)="updateGap($event)" class="flex-1 cursor-pointer max-md:min-h-[44px]">
+        <input type="number" class="w-[50px] text-right py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none" [value]="stateService.watermarkGap()" (input)="updateGap($event)">
+      </div>
+    </div>
+  </fieldset>
+}

@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, inject, OnInit } from '@angular/core';
-import { WatermarkStateService, Mask } from '../../../services/watermark-state.service';
+import { WatermarkStateService, Mask } from '../../services/watermark-state.service';
 
 @Component({
   selector: 'app-safe-zone-box',

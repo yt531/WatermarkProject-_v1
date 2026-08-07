@@ -1,1 +1,25 @@
-<p>control-pane works!</p>
+<div class="w-[380px] max-md:w-full bg-(--color-panel-bg) border-l border-(--color-border) max-md:border-l-0 max-md:border-t-0 overflow-y-auto max-md:overflow-visible flex flex-col max-md:h-auto max-md:pb-[80px]">
+  
+  <div class="p-[15px] border-b border-(--color-border) bg-[#eef3fb]" style="border-bottom: 2px solid #ccdbe8">
+    <app-mode-selector></app-mode-selector>
+  </div>
+
+  <div class="p-[15px] border-b border-(--color-border)">
+    <app-file-uploader></app-file-uploader>
+  </div>
+
+  <div class="p-[15px] border-b border-(--color-border)">
+    <app-watermark-settings></app-watermark-settings>
+  </div>
+
+  <div class="p-[15px] border-b border-(--color-border)">
+    <app-appearance-settings></app-appearance-settings>
+  </div>
+
+  <div class="p-[15px] border-b border-(--color-border)">
+    <app-position-density></app-position-density>
+  </div>
+
+  <app-export-panel></app-export-panel>
+
+</div>
