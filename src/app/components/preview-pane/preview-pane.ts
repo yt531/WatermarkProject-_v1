@@ -152,11 +152,19 @@ export class PreviewPaneComponent implements AfterViewInit {
     let newX = currentX + dx * scaleX;
     let newY = currentY + dy * scaleY;
 
-    // Constrain to center within canvas (more flexible than strictly confining the whole text)
-    const minX = 0;
-    const maxX = canvas.width;
-    const minY = 0;
-    const maxY = canvas.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const basePx = canvas.width / 20;
+    const fontSize = basePx * (p.size / 50);
+    ctx.font = `bold ${fontSize}px "${p.font}"`;
+    const textW = ctx.measureText(p.text).width;
+    const textH = fontSize;
+
+    // Constrain the entire text to stay within the canvas
+    const minX = Math.min(textW / 2, canvas.width / 2);
+    const maxX = Math.max(canvas.width - textW / 2, canvas.width / 2);
+    const minY = Math.min(textH / 2, canvas.height / 2);
+    const maxY = Math.max(canvas.height - textH / 2, canvas.height / 2);
 
     let clampedX = Math.max(minX, Math.min(newX, maxX));
     let clampedY = Math.max(minY, Math.min(newY, maxY));
