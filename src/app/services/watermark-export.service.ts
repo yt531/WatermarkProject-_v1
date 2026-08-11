@@ -34,7 +34,7 @@ export class WatermarkExportService {
     targetCtx.textBaseline = 'middle';
     targetCtx.textAlign = 'center';
 
-    if (this.stateService.watermarkMode() === 'single') {
+    if (p.mode === 'single') {
       const textW = targetCtx.measureText(p.text).width;
       let x = 0, y = 0;
       const parts = p.pos.split('-');

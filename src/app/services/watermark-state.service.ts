@@ -18,6 +18,7 @@ export interface WatermarkParams {
   pos: string;
   mask: Mask | null;
   customPos: {x: number, y: number} | null;
+  mode: 'single' | 'tiled';
 }
 
 @Injectable({
@@ -73,7 +74,8 @@ export class WatermarkStateService {
       gap: this.watermarkGap(),
       pos: this.watermarkPos(),
       mask: this.isIdCardMode() ? this.safeZoneMask() : null,
-      customPos: this.watermarkCustomPos()
+      customPos: this.watermarkCustomPos(),
+      mode: this.watermarkMode()
     };
   }
 

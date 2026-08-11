@@ -18,16 +18,18 @@
     <div class="flex-1 w-full h-full flex justify-center items-center p-2 md:p-5">
       <div
         class="relative shadow-md w-full h-full max-w-[800px] flex justify-center items-center bg-white min-h-[150px] overflow-hidden group">
-        <canvas #previewCanvas class="max-w-full max-h-full block bg-white object-contain shadow-sm"
-          [class.cursor-move]="stateService.watermarkMode() === 'single'" 
-          (pointerdown)="onPointerDown($event)"
-          (pointermove)="onPointerMove($event)" 
-          (pointerup)="onPointerUp($event)" 
-          (pointercancel)="onPointerUp($event)"></canvas>
-        
-        @if (stateService.usageMode() === 'idcard') {
-        <app-safe-zone-box></app-safe-zone-box>
-        }
+        <div class="relative max-w-full max-h-full inline-block leading-none">
+          <canvas #previewCanvas class="max-w-full max-h-full block bg-white object-contain shadow-sm"
+            [class.cursor-move]="stateService.watermarkMode() === 'single'" 
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)" 
+            (pointerup)="onPointerUp($event)" 
+            (pointercancel)="onPointerUp($event)"></canvas>
+          
+          @if (stateService.usageMode() === 'idcard') {
+          <app-safe-zone-box class="absolute inset-0 w-full h-full pointer-events-none"></app-safe-zone-box>
+          }
+        </div>
 
         <button (click)="openFullscreen()"
           class="absolute top-2 right-2 p-2 bg-black/50 text-white rounded hover:bg-black/70 opacity-80 transition-opacity z-20 cursor-pointer">
