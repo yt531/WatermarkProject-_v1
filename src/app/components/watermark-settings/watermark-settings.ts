@@ -32,10 +32,27 @@ export class WatermarkSettingsComponent {
 
   toggleFontDropdown() {
     this.isFontDropdownOpen = !this.isFontDropdownOpen;
+    if (!this.isFontDropdownOpen) {
+      this.stateService.previewFont.set(null);
+    }
+  }
+
+  closeFontDropdown() {
+    this.isFontDropdownOpen = false;
+    this.stateService.previewFont.set(null);
+  }
+
+  onFontHover(fontValue: string) {
+    this.stateService.previewFont.set(fontValue);
+  }
+
+  onFontLeave() {
+    this.stateService.previewFont.set(null);
   }
 
   selectFont(fontValue: string) {
     this.stateService.watermarkFont.set(fontValue);
+    this.stateService.previewFont.set(null);
     this.isFontDropdownOpen = false;
   }
 

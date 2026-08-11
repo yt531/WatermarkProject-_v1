@@ -41,6 +41,7 @@ export class WatermarkStateService {
   // 浮水印參數
   watermarkText = signal<string>('機密 CONFIDENTIAL');
   watermarkFont = signal<string>('Arial');
+  previewFont = signal<string | null>(null);
   watermarkColor = signal<string>('#FF0000');
   watermarkSize = signal<number>(50);
   watermarkRotate = signal<number>(335);
@@ -64,7 +65,7 @@ export class WatermarkStateService {
   getParams(): WatermarkParams {
     return {
       text: this.watermarkText(),
-      font: this.watermarkFont(),
+      font: this.previewFont() || this.watermarkFont(),
       color: this.watermarkColor(),
       size: this.watermarkSize(),
       rotate: this.watermarkRotate(),
