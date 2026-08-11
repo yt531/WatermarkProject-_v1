@@ -4,11 +4,11 @@
     <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="w-full py-2 px-2 mb-3 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none">
     
     <label class="text-[13px] font-bold text-[#555] block mb-1">匯出格式：</label>
-    <div class="flex bg-[#f0f0f0] rounded overflow-hidden border border-[#ccc]">
-      <button (click)="setFormat('auto')" [class]="getFormatBtnClass('auto')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors border-none outline-none cursor-pointer">自動</button>
-      <button (click)="setFormat('png')" [class]="getFormatBtnClass('png')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors border-none outline-none cursor-pointer border-l border-[#ccc]">PNG</button>
-      <button (click)="setFormat('jpg')" [class]="getFormatBtnClass('jpg')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors border-none outline-none cursor-pointer border-l border-[#ccc]">JPG</button>
-      <button (click)="setFormat('pdf')" [class]="getFormatBtnClass('pdf')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors border-none outline-none cursor-pointer border-l border-[#ccc]">PDF</button>
+    <div class="flex bg-[#f0f0f0] rounded overflow-hidden border border-[#aaa] divide-x divide-[#aaa]">
+      <button (click)="setFormat('auto')" [class]="getFormatBtnClass('auto')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors outline-none cursor-pointer">自動</button>
+      <button (click)="setFormat('png')" [class]="getFormatBtnClass('png')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors outline-none cursor-pointer">PNG</button>
+      <button (click)="setFormat('jpg')" [class]="getFormatBtnClass('jpg')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors outline-none cursor-pointer">JPG</button>
+      <button (click)="setFormat('pdf')" [class]="getFormatBtnClass('pdf')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors outline-none cursor-pointer">PDF</button>
     </div>
   </div>
   <button class="w-full p-3 bg-[#28a745] hover:bg-[#218838] transition-colors text-white border-none rounded text-[16px] font-bold cursor-pointer disabled:bg-[#ccc] disabled:cursor-not-allowed flex items-center justify-center gap-2"
