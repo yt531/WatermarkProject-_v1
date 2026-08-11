@@ -66,8 +66,8 @@ export class PreviewPaneComponent implements AfterViewInit {
     if (!canvas || !canvas.getContext) return; // Ensure it's a canvas
 
     if (p.customPos) {
-      this.initialWatermarkX = p.customPos.x;
-      this.initialWatermarkY = p.customPos.y;
+      this.initialWatermarkX = p.customPos.x * canvas.width;
+      this.initialWatermarkY = p.customPos.y * canvas.height;
     } else {
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -146,8 +146,8 @@ export class PreviewPaneComponent implements AfterViewInit {
     const scaleY = canvas.height / rect.height;
 
     const p = this.stateService.getParams();
-    let currentX = p.customPos ? p.customPos.x : this.initialWatermarkX;
-    let currentY = p.customPos ? p.customPos.y : this.initialWatermarkY;
+    let currentX = p.customPos ? p.customPos.x * canvas.width : this.initialWatermarkX;
+    let currentY = p.customPos ? p.customPos.y * canvas.height : this.initialWatermarkY;
 
     let newX = currentX + dx * scaleX;
     let newY = currentY + dy * scaleY;
@@ -161,7 +161,7 @@ export class PreviewPaneComponent implements AfterViewInit {
     let clampedX = Math.max(minX, Math.min(newX, maxX));
     let clampedY = Math.max(minY, Math.min(newY, maxY));
 
-    this.stateService.watermarkCustomPos.set({ x: clampedX, y: clampedY });
+    this.stateService.watermarkCustomPos.set({ x: clampedX / canvas.width, y: clampedY / canvas.height });
   }
 
   onPointerUp(e?: any) {

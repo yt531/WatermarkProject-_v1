@@ -43,8 +43,8 @@ export class WatermarkExportService {
       const margin = fontSize;
 
       if (p.customPos) {
-        x = p.customPos.x;
-        y = p.customPos.y;
+        x = p.customPos.x * width;
+        y = p.customPos.y * height;
       } else {
         if (h === 'left') x = margin + textW / 2;
         else if (h === 'right') x = width - margin - textW / 2;
