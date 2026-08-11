@@ -24,7 +24,7 @@
 
     @if (isFontDropdownOpen) {
       <div class="fixed inset-0 z-40" (click)="closeFontDropdown()"></div>
-      <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden py-1">
+      <div class="absolute z-50 w-full bottom-full mb-1 bg-white border border-gray-200 rounded-md shadow-lg overflow-y-auto overscroll-contain py-1 max-h-[250px]">
         @for (font of fonts; track font.value) {
           <button (click)="selectFont(font.value)"
                   (mouseenter)="onFontHover(font.value)"
