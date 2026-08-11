@@ -18,11 +18,12 @@
     <div class="flex-1 w-full h-full flex justify-center items-center p-2 md:p-5">
       <div
         class="relative shadow-md w-full h-full max-w-[800px] flex justify-center items-center bg-white min-h-[150px] overflow-hidden group">
-        <canvas #previewCanvas class="w-full h-full block bg-white object-contain"
-          [class.cursor-move]="stateService.watermarkMode() === 'single'" (mousedown)="onPointerDown($event)"
-          (mousemove)="onPointerMove($event)" (mouseup)="onPointerUp()" (mouseleave)="onPointerUp()"
-          (touchstart)="onPointerDown($event)" (touchmove)="onPointerMove($event)" (touchend)="onPointerUp()"
-          (touchcancel)="onPointerUp()"></canvas>
+        <canvas #previewCanvas class="max-w-full max-h-full block bg-white object-contain shadow-sm"
+          [class.cursor-move]="stateService.watermarkMode() === 'single'" 
+          (pointerdown)="onPointerDown($event)"
+          (pointermove)="onPointerMove($event)" 
+          (pointerup)="onPointerUp($event)" 
+          (pointercancel)="onPointerUp($event)"></canvas>
         
         @if (stateService.usageMode() === 'idcard') {
         <app-safe-zone-box></app-safe-zone-box>

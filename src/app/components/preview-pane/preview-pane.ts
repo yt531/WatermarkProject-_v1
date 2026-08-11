@@ -19,8 +19,8 @@ export class PreviewPaneComponent implements AfterViewInit {
   modalImageSrc = signal('');
 
   isDragging = false;
-  dragStartX = 0;
-  dragStartY = 0;
+  lastMouseX = 0;
+  lastMouseY = 0;
   initialWatermarkX = 0;
   initialWatermarkY = 0;
 
@@ -41,19 +41,25 @@ export class PreviewPaneComponent implements AfterViewInit {
     requestAnimationFrame(() => this.drawCanvas());
   }
 
-  onPointerDown(e: MouseEvent | TouchEvent) {
+  onPointerDown(e: any) {
     if (this.stateService.watermarkMode() !== 'single' || !this.stateService.isLoaded()) return;
 
     let clientX, clientY;
-    if (window.TouchEvent && e instanceof TouchEvent) {
+    if (e.touches && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
     } else {
-      clientX = (e as MouseEvent).clientX;
-      clientY = (e as MouseEvent).clientY;
+      clientX = e.clientX;
+      clientY = e.clientY;
     }
-    this.dragStartX = clientX;
-    this.dragStartY = clientY;
+    this.lastMouseX = clientX;
+    this.lastMouseY = clientY;
+
+    if (e.pointerId !== undefined && e.target && e.target.setPointerCapture) {
+      try {
+        e.target.setPointerCapture(e.pointerId);
+      } catch (err) {}
+    }
 
     const p = this.stateService.getParams();
     const canvas = e.target as HTMLCanvasElement;
@@ -89,7 +95,7 @@ export class PreviewPaneComponent implements AfterViewInit {
       }
     }
 
-    // Hit test to allow scrolling on canvas edges
+    // Hit test
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
@@ -102,11 +108,9 @@ export class PreviewPaneComponent implements AfterViewInit {
     ctx!.font = `bold ${fontSize}px "${p.font}"`;
     const textW = ctx!.measureText(p.text).width;
 
-    // Hit box: Text width/height + 20px padding (reduced to avoid accidental drags)
     const halfW = (textW / 2) + 20;
     const halfH = (fontSize / 2) + 20;
 
-    // Must hit the text
     if (Math.abs(touchX - this.initialWatermarkX) < halfW && Math.abs(touchY - this.initialWatermarkY) < halfH) {
       this.isDragging = true;
     } else {
@@ -114,60 +118,59 @@ export class PreviewPaneComponent implements AfterViewInit {
     }
   }
 
-  onPointerMove(e: MouseEvent | TouchEvent) {
+  onPointerMove(e: any) {
     if (!this.isDragging) return;
 
-    if (window.TouchEvent && e instanceof TouchEvent) {
-      if (e.cancelable) e.preventDefault();
-    }
+    if (e.cancelable && e.type === 'touchmove') e.preventDefault();
 
     let clientX, clientY;
-    if (window.TouchEvent && e instanceof TouchEvent) {
+    if (e.touches && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
     } else {
-      clientX = (e as MouseEvent).clientX;
-      clientY = (e as MouseEvent).clientY;
+      clientX = e.clientX;
+      clientY = e.clientY;
     }
 
-    const dx = clientX - this.dragStartX;
-    const dy = clientY - this.dragStartY;
+    const dx = clientX - this.lastMouseX;
+    const dy = clientY - this.lastMouseY;
+    
+    this.lastMouseX = clientX;
+    this.lastMouseY = clientY;
 
     const canvas = e.target as HTMLCanvasElement;
     if (!canvas || !canvas.getContext) return;
 
-    const scaleX = canvas.width / canvas.clientWidth;
-    const scaleY = canvas.height / canvas.clientHeight;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
 
-    const newX = this.initialWatermarkX + dx * scaleX;
-    const newY = this.initialWatermarkY + dy * scaleY;
-
-    // Constrain to canvas boundaries
     const p = this.stateService.getParams();
-    const ctx = canvas.getContext('2d');
-    const basePx = canvas.width / 20;
-    const fontSize = basePx * (p.size / 50);
-    ctx!.font = `bold ${fontSize}px "${p.font}"`;
-    const textW = ctx!.measureText(p.text).width;
+    let currentX = p.customPos ? p.customPos.x : this.initialWatermarkX;
+    let currentY = p.customPos ? p.customPos.y : this.initialWatermarkY;
 
-    const margin = 10;
-    const minX = textW / 2 + margin;
-    const maxX = canvas.width - textW / 2 - margin;
-    const minY = fontSize / 2 + margin;
-    const maxY = canvas.height - fontSize / 2 - margin;
+    let newX = currentX + dx * scaleX;
+    let newY = currentY + dy * scaleY;
+
+    // Constrain to center within canvas (more flexible than strictly confining the whole text)
+    const minX = 0;
+    const maxX = canvas.width;
+    const minY = 0;
+    const maxY = canvas.height;
 
     let clampedX = Math.max(minX, Math.min(newX, maxX));
     let clampedY = Math.max(minY, Math.min(newY, maxY));
 
-    // Handle edge case where text is larger than canvas
-    if (minX > maxX) clampedX = canvas.width / 2;
-    if (minY > maxY) clampedY = canvas.height / 2;
-
     this.stateService.watermarkCustomPos.set({ x: clampedX, y: clampedY });
   }
 
-  onPointerUp() {
+  onPointerUp(e?: any) {
     this.isDragging = false;
+    if (e && e.pointerId !== undefined && e.target && e.target.releasePointerCapture) {
+      try {
+        e.target.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
   }
 
   initEmptyCanvas() {
