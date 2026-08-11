@@ -1,12 +1,12 @@
 <div class="flex flex-col md:flex-row flex-1 w-full h-full overflow-hidden relative">
-  <!-- 預覽區：手機版佔據除了底部按鈕外的所有空間 -->
-  <div class="flex-1 w-full flex overflow-hidden relative z-10 md:z-10 bg-[var(--color-bg)] shadow-md md:shadow-none pb-[80px] md:pb-0" (click)="onPreviewClick()">
+  <!-- 預覽區：自動填滿剩餘空間，遇到下方控制區會自動往上縮小 -->
+  <div class="flex-1 w-full flex overflow-hidden relative z-10 md:z-10 bg-[var(--color-bg)] shadow-md md:shadow-none min-h-0" (click)="onPreviewClick()">
     <app-preview-pane class="w-full h-full flex flex-col"></app-preview-pane>
   </div>
   
-  <!-- 控制區：手機版為 full height overlay (pointer-events-none)，電腦版為右側 sidebar -->
+  <!-- 控制區：手機版會依照內容長出高度，電腦版為右側 sidebar -->
   <app-control-pane 
     #controlPane
-    class="md:w-[380px] md:flex-none md:shrink-0 bg-transparent md:bg-white md:border-l border-[var(--color-border)] flex-col md:shadow-[-2px_0_10px_rgba(0,0,0,0.05)] z-20 md:overflow-y-auto md:relative absolute inset-0 md:h-full flex pointer-events-none md:pointer-events-auto">
+    class="w-full h-auto flex-none md:w-[380px] md:shrink-0 bg-transparent md:bg-white md:border-l border-[var(--color-border)] flex flex-col md:shadow-[-2px_0_10px_rgba(0,0,0,0.05)] z-20 md:overflow-y-auto relative md:h-full pointer-events-none md:pointer-events-auto">
   </app-control-pane>
 </div>

@@ -1,10 +1,13 @@
-<div class="w-full h-full bg-transparent md:bg-(--color-panel-bg) flex flex-col relative pointer-events-none md:pointer-events-auto">
+<div class="w-full flex flex-col pointer-events-none md:pointer-events-auto bg-transparent md:bg-white shadow-none md:shadow-[0_-5px_20px_rgba(0,0,0,0.1)] z-50">
 
-  <!-- Desktop Overlay/Scroll container -->
-  <div class="w-full h-full flex flex-col pointer-events-none md:pointer-events-auto md:overflow-y-auto pb-[80px] md:pb-0">
+  <!-- Panels container (hidden if no panel is active on mobile) -->
+  <div class="w-full flex-col pointer-events-none md:pointer-events-auto md:overflow-y-auto"
+       [class.flex]="activeMobileMenu !== null"
+       [class.hidden]="activeMobileMenu === null"
+       [class.md:flex]="true">
     
     <!-- 1. 背景圖 (Upload) -->
-    <div [class]="getPanelClass('upload', 'z-50 md:z-50')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('upload')">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">匯入</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -17,7 +20,7 @@
     </div>
 
     <!-- 2. 內容 (Content) -->
-    <div [class]="getPanelClass('content', 'z-40 md:z-40')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('content')">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">浮水印內容</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -44,7 +47,7 @@
     </div>
 
     <!-- 3. 樣式 (Style) -->
-    <div [class]="getPanelClass('style', 'z-30 md:z-30')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('style')">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">樣式設定</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -57,7 +60,7 @@
     </div>
 
     <!-- 4. 版面 (Layout) -->
-    <div [class]="getPanelClass('layout', 'z-20 md:z-20')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('layout')">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">位置與版面</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -70,7 +73,7 @@
     </div>
 
     <!-- 5. 輸出 (Export) -->
-    <div [class]="getPanelClass('export', 'z-10 md:z-10')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('export')">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">匯出設定</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -84,7 +87,7 @@
   </div>
 
   <!-- Mobile Bottom Menu Bar -->
-  <div class="md:hidden fixed bottom-0 left-0 right-0 h-[80px] bg-white border-t border-gray-200 flex z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-safe pointer-events-auto">
+  <div class="md:hidden relative flex-none w-full h-[80px] bg-white border-t border-gray-200 flex z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)] pointer-events-auto">
     <button [class]="getMenuBtnClass('upload')" (click)="toggleMobileMenu('upload')">
       <div class="text-[20px]">📂</div>
       <span class="text-[11px] font-medium">匯入</span>
