@@ -186,13 +186,15 @@ export class WatermarkExportService {
 
       if (!shareSucceeded) {
         if (files.length === 1 && totalOutputCount === 1 && singleResultBlob) {
-          await this.saveFile(singleResultBlob, `${outName}.${singleResultExt}`, singleResultExt);
+          const finalName = await this.saveFile(singleResultBlob, `${outName}.${singleResultExt}`, singleResultExt);
+          if (finalName) alert(`檔案 ${finalName} 匯出成功！`);
         } else {
           statusCallback('打包壓縮中...');
           const content = await zip.generateAsync({ type: 'blob' });
-          await this.saveFile(content, `${outName}.zip`, 'zip');
+          const finalName = await this.saveFile(content, `${outName}.zip`, 'zip');
+          if (finalName) alert(`檔案 ${finalName} 匯出成功！`);
         }
-        statusCallback('完成！');
+        statusCallback('');
       }
     } catch (error: any) {
       console.error(error);
@@ -272,22 +274,22 @@ export class WatermarkExportService {
     return new Blob([saved], { type: 'application/pdf' });
   }
 
-  async saveFile(blob: Blob, suggestedName: string, ext: string) {
+  async saveFile(blob: Blob, suggestedName: string, ext: string): Promise<string | false> {
     if ('showSaveFilePicker' in window) {
       try {
         const types: any[] = [];
         if (ext === 'pdf') types.push({ description: 'PDF 文件', accept: { 'application/pdf': ['.pdf'] } });
         else if (ext === 'zip') types.push({ description: 'ZIP 壓縮檔', accept: { 'application/zip': ['.zip'] } });
-        else if (ext === 'jpg') types.push({ description: 'JPG 圖片', accept: { 'image/jpeg': ['.jpg'] } });
+        else if (ext === 'jpg') types.push({ description: 'JPG 圖片', accept: { 'image/jpeg': ['.jpg', '.jpeg'] } });
         else if (ext === 'png') types.push({ description: 'PNG 圖片', accept: { 'image/png': ['.png'] } });
         else types.push({ description: '檔案', accept: { '*/*': ['.' + ext] } });
         const handle = await (window as any).showSaveFilePicker({ suggestedName, types });
         const writable = await handle.createWritable();
         await writable.write(blob);
         await writable.close();
-        return;
+        return handle.name;
       } catch (err: any) {
-        if (err.name === 'AbortError') return;
+        if (err.name === 'AbortError') return false;
       }
     }
     const url = URL.createObjectURL(blob);
@@ -298,5 +300,6 @@ export class WatermarkExportService {
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return suggestedName;
   }
 }
