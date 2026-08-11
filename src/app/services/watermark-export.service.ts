@@ -162,40 +162,16 @@ export class WatermarkExportService {
         }
       }
 
-      const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-      let shareSucceeded = false;
-
-      if (isMobile && navigator.canShare && navigator.canShare({ files: outputFiles })) {
-        try {
-          statusCallback('正在喚起系統分享...');
-          await navigator.share({
-            files: outputFiles,
-            title: '匯出的浮水印檔案'
-          });
-          statusCallback('儲存/分享完成！');
-          shareSucceeded = true;
-        } catch (error: any) {
-          if (error.name === 'AbortError') {
-            statusCallback('已取消分享。');
-            shareSucceeded = true; // Prevent fallback if intentionally cancelled
-          } else {
-            console.warn('Native share failed, falling back to download:', error);
-          }
-        }
+      if (files.length === 1 && totalOutputCount === 1 && singleResultBlob) {
+        const finalName = await this.saveFile(singleResultBlob, `${outName}.${singleResultExt}`, singleResultExt);
+        if (finalName) alert(`檔案 ${finalName} 匯出成功！`);
+      } else {
+        statusCallback('打包壓縮中...');
+        const content = await zip.generateAsync({ type: 'blob' });
+        const finalName = await this.saveFile(content, `${outName}.zip`, 'zip');
+        if (finalName) alert(`檔案 ${finalName} 匯出成功！`);
       }
-
-      if (!shareSucceeded) {
-        if (files.length === 1 && totalOutputCount === 1 && singleResultBlob) {
-          const finalName = await this.saveFile(singleResultBlob, `${outName}.${singleResultExt}`, singleResultExt);
-          if (finalName) alert(`檔案 ${finalName} 匯出成功！`);
-        } else {
-          statusCallback('打包壓縮中...');
-          const content = await zip.generateAsync({ type: 'blob' });
-          const finalName = await this.saveFile(content, `${outName}.zip`, 'zip');
-          if (finalName) alert(`檔案 ${finalName} 匯出成功！`);
-        }
-        statusCallback('');
-      }
+      statusCallback('');
     } catch (error: any) {
       console.error(error);
       statusCallback(`發生錯誤: ${error.message}`);
