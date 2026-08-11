@@ -4,7 +4,7 @@
   <div class="w-full h-full flex flex-col pointer-events-none md:pointer-events-auto md:overflow-y-auto pb-[80px] md:pb-0">
     
     <!-- 1. 背景圖 (Upload) -->
-    <div [class]="getPanelClass('upload')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('upload', 'z-50 md:z-50')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">匯入</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -17,7 +17,7 @@
     </div>
 
     <!-- 2. 內容 (Content) -->
-    <div [class]="getPanelClass('content')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('content', 'z-40 md:z-40')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">浮水印內容</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -44,7 +44,7 @@
     </div>
 
     <!-- 3. 樣式 (Style) -->
-    <div [class]="getPanelClass('style')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('style', 'z-30 md:z-30')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">樣式設定</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -57,7 +57,7 @@
     </div>
 
     <!-- 4. 版面 (Layout) -->
-    <div [class]="getPanelClass('layout')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('layout', 'z-20 md:z-20')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">位置與版面</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">
@@ -70,7 +70,7 @@
     </div>
 
     <!-- 5. 輸出 (Export) -->
-    <div [class]="getPanelClass('export')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
+    <div [class]="getPanelClass('export', 'z-10 md:z-10')" [style.bottom]="'calc(80px + env(safe-area-inset-bottom, 0px))'">
       <div [class]="getHeaderClass()">
         <span class="font-bold text-[14px]">匯出設定</span>
         <button (click)="closeMobileMenu()" class="p-1 cursor-pointer bg-transparent border-none text-gray-500">

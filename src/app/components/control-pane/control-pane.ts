@@ -39,8 +39,8 @@ export class ControlPaneComponent {
     this.activeMobileMenu = null;
   }
 
-  getPanelClass(menu: string) {
-    const base = 'absolute left-0 w-full bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.1)] rounded-t-2xl transition-all duration-300 flex flex-col max-h-[70vh] overflow-y-auto overscroll-contain z-10 md:static md:bg-transparent md:shadow-none md:rounded-none md:transition-none md:max-h-none md:overflow-y-visible md:z-auto md:border-b md:border-[var(--color-border)] md:translate-y-0 md:opacity-100 md:visible md:pointer-events-auto';
+  getPanelClass(menu: string, extraClasses: string = 'z-10 md:z-auto') {
+    const base = `absolute left-0 w-full bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.1)] rounded-t-2xl transition-all duration-300 flex flex-col max-h-[70vh] overflow-y-auto overscroll-contain md:static md:bg-transparent md:shadow-none md:rounded-none md:transition-none md:max-h-none md:overflow-y-visible md:border-b md:border-[var(--color-border)] md:translate-y-0 md:opacity-100 md:visible md:pointer-events-auto ${extraClasses}`;
     const isActive = this.activeMobileMenu === menu;
     const mobileState = isActive ? '!translate-y-0 !opacity-100 !visible pointer-events-auto' : 'translate-y-full opacity-0 invisible pointer-events-none';
     return `${base} ${mobileState}`;
