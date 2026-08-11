@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { WatermarkStateService } from '../../services/watermark-state.service';
 import { WatermarkExportService } from '../../services/watermark-export.service';
 
@@ -10,6 +10,7 @@ import { WatermarkExportService } from '../../services/watermark-export.service'
 export class ExportPanelComponent {
   stateService = inject(WatermarkStateService);
   exportService = inject(WatermarkExportService);
+  cdr = inject(ChangeDetectorRef);
 
   isProcessing = false;
   statusMsg = '';
@@ -26,15 +27,18 @@ export class ExportPanelComponent {
     if (this.isProcessing) return;
     this.isProcessing = true;
     this.statusMsg = '';
+    this.cdr.detectChanges();
 
     try {
       await this.exportService.processAll((msg) => {
         this.statusMsg = msg;
+        this.cdr.detectChanges();
       });
     } catch (e) {
       // Error is handled in service
     } finally {
       this.isProcessing = false;
+      this.cdr.detectChanges();
     }
   }
 }

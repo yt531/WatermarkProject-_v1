@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { WatermarkExportService } from '../../services/watermark-export.service';
 import { WatermarkStateService } from '../../services/watermark-state.service';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 export class HeaderComponent {
   exportService = inject(WatermarkExportService);
   stateService = inject(WatermarkStateService);
+  cdr = inject(ChangeDetectorRef);
 
   isProcessing = false;
   statusMsg = '';
@@ -24,15 +25,18 @@ export class HeaderComponent {
     if (this.isProcessing || !this.hasFiles) return;
     this.isProcessing = true;
     this.statusMsg = '';
+    this.cdr.detectChanges();
 
     try {
       await this.exportService.processAll((msg) => {
         this.statusMsg = msg;
+        this.cdr.detectChanges();
       });
     } catch (e) {
       // Error is handled in service
     } finally {
       this.isProcessing = false;
+      this.cdr.detectChanges();
     }
   }
 }
