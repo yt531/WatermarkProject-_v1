@@ -19,8 +19,15 @@ export class ExportPanelComponent {
     this.stateService.outputFileName.set((event.target as HTMLInputElement).value);
   }
 
-  updateFormat(event: Event) {
-    this.stateService.outputFormat.set((event.target as HTMLSelectElement).value);
+  setFormat(format: string) {
+    this.stateService.outputFormat.set(format);
+  }
+
+  getFormatBtnClass(format: string) {
+    if (this.stateService.outputFormat() === format) {
+      return 'bg-(--color-primary) text-white';
+    }
+    return 'bg-transparent text-[#555] hover:bg-[#e0e0e0]';
   }
 
   async processAll() {
