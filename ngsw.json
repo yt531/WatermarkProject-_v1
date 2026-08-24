@@ -1,0 +1,81 @@
+{
+  "configVersion": 1,
+  "timestamp": 1787542025702,
+  "index": "/WatermarkProject-_v1/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/WatermarkProject-_v1/favicon.ico",
+        "/WatermarkProject-_v1/index.html",
+        "/WatermarkProject-_v1/main-XK6MK67T.js",
+        "/WatermarkProject-_v1/manifest.webmanifest",
+        "/WatermarkProject-_v1/styles-6WQMHCUP.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/WatermarkProject-_v1/icons/icon-128x128.png",
+        "/WatermarkProject-_v1/icons/icon-144x144.png",
+        "/WatermarkProject-_v1/icons/icon-152x152.png",
+        "/WatermarkProject-_v1/icons/icon-192x192.png",
+        "/WatermarkProject-_v1/icons/icon-384x384.png",
+        "/WatermarkProject-_v1/icons/icon-512x512.png",
+        "/WatermarkProject-_v1/icons/icon-72x72.png",
+        "/WatermarkProject-_v1/icons/icon-96x96.png",
+        "/WatermarkProject-_v1/icons/maskable-icon-192x192.png",
+        "/WatermarkProject-_v1/icons/maskable-icon-512x512.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/WatermarkProject-_v1/favicon.ico": "4c8053376a6fd559c8d1fd72d28a463931508d10",
+    "/WatermarkProject-_v1/icons/icon-128x128.png": "99dadf3fb85b30d3bd2e20188f4917738679f787",
+    "/WatermarkProject-_v1/icons/icon-144x144.png": "4868eb384e48e803ffa1dc635d90e61f3e7466ab",
+    "/WatermarkProject-_v1/icons/icon-152x152.png": "252e2e19f315a89af438ee8ce07605fba7340d47",
+    "/WatermarkProject-_v1/icons/icon-192x192.png": "2af091514ea6cf8f5324af326c4410b7efd06882",
+    "/WatermarkProject-_v1/icons/icon-384x384.png": "089dca674a85c8b509119ac42e7c1f9864e3655a",
+    "/WatermarkProject-_v1/icons/icon-512x512.png": "de92eab77e5e7cdf79e1f9e444de6bd997f2e618",
+    "/WatermarkProject-_v1/icons/icon-72x72.png": "8646579a06d161102b3930d3f73c043d2a82260f",
+    "/WatermarkProject-_v1/icons/icon-96x96.png": "85f235c913bef4cbd376c2fc768e8a17cbeb6e3e",
+    "/WatermarkProject-_v1/icons/maskable-icon-192x192.png": "c803892605885dcc0c5dcb7acc33e73aa1c74704",
+    "/WatermarkProject-_v1/icons/maskable-icon-512x512.png": "5697d1ab11af12231470dda13177cd929af5765c",
+    "/WatermarkProject-_v1/index.html": "e60bf178b099bcc72031858d5e689eedb54142b7",
+    "/WatermarkProject-_v1/main-XK6MK67T.js": "cfe7a5d386b369832d438579dede4f1dec618f86",
+    "/WatermarkProject-_v1/manifest.webmanifest": "f52c761bf843142bc32434cb7c8e80de1f56ff5d",
+    "/WatermarkProject-_v1/styles-6WQMHCUP.css": "a006a48a3bfaa4fe0848313541d2ffb0053a2572"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
