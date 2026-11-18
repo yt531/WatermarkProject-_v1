@@ -313,6 +313,68 @@ describe('WatermarkExportService', () => {
     });
   });
 
+  describe('processImage', () => {
+    let created: any[];
+    const realImage = globalThis.Image;
+
+    beforeEach(() => {
+      created = [];
+      (URL as any).createObjectURL = vi.fn(() => 'blob:img');
+      (URL as any).revokeObjectURL = vi.fn();
+      (globalThis as any).Image = function () {
+        const img: any = { width: 10, height: 10 };
+        created.push(img);
+        return img;
+      };
+    });
+
+    afterEach(() => {
+      (globalThis as any).Image = realImage;
+      vi.restoreAllMocks();
+    });
+
+    it('rejects and revokes the object URL when the image fails to load', async () => {
+      const pending = service.processImage(new File(['x'], 'bad.png', { type: 'image/png' }), params(), null);
+      created[0].onerror();
+      await expect(pending).rejects.toThrow('無法載入圖片: bad.png');
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:img');
+    });
+
+    it('revokes the object URL after a successful load', async () => {
+      const ctx = makeCtx();
+      const canvas = {
+        getContext: () => ctx,
+        width: 0,
+        height: 0,
+        toBlob: (cb: (b: Blob | null) => void) => cb(new Blob(['ok'])),
+      };
+      const realCreate = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string) =>
+        tag === 'canvas' ? (canvas as any) : realCreate(tag)
+      );
+      (ctx as any).drawImage = vi.fn();
+
+      const pending = service.processImage(new File(['x'], 'ok.png', { type: 'image/png' }), params(), null);
+      created[0].onload();
+      await expect(pending).resolves.toBeInstanceOf(Blob);
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:img');
+    });
+
+    it('rejects when the canvas cannot produce a blob', async () => {
+      const ctx: any = makeCtx();
+      ctx.drawImage = vi.fn();
+      const canvas = { getContext: () => ctx, toBlob: (cb: (b: Blob | null) => void) => cb(null) };
+      const realCreate = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string) =>
+        tag === 'canvas' ? (canvas as any) : realCreate(tag)
+      );
+
+      const pending = service.processImage(new File(['x'], 'big.png', { type: 'image/png' }), params(), null);
+      created[0].onload();
+      await expect(pending).rejects.toThrow('無法輸出圖片: big.png');
+    });
+  });
+
   describe('saveFile', () => {
     afterEach(() => {
       delete (window as any).showSaveFilePicker;

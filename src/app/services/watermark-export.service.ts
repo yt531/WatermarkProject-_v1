@@ -213,9 +213,11 @@ export class WatermarkExportService {
   }
 
   processImage(file: File, p: WatermarkParams, mimeType: string | null): Promise<Blob> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
+      const url = URL.createObjectURL(file);
       img.onload = () => {
+        URL.revokeObjectURL(url);
         const c = document.createElement('canvas');
         const x = c.getContext('2d')!;
         c.width = img.width;
@@ -223,9 +225,17 @@ export class WatermarkExportService {
         x.drawImage(img, 0, 0);
         this.applyWatermarkToCanvas(x, c.width, c.height, p);
         const outputType = mimeType || file.type;
-        c.toBlob((b) => resolve(b!), outputType, 0.9);
+        c.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error(`無法輸出圖片: ${file.name}`))),
+          outputType,
+          0.9
+        );
       };
-      img.src = URL.createObjectURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error(`無法載入圖片: ${file.name}`));
+      };
+      img.src = url;
     });
   }
 
