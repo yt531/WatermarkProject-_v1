@@ -1,6 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import JSZip from 'jszip';
-import { PDFDocument } from 'pdf-lib';
 import { parsePageRange } from './page-range';
 import { loadPdfjs } from './pdfjs-loader';
 import { getFontCss, getFontSize, getSingleAnchor } from './watermark-layout';
@@ -80,6 +78,8 @@ export class WatermarkExportService {
     const p = this.stateService.getParams();
 
     try {
+      // 打包與 PDF 函式庫只在匯出時才下載，不佔首次載入
+      const { default: JSZip } = await import('jszip');
       const zip = new JSZip();
       let singleResultBlob: Blob | null = null;
       let singleResultExt = '';
@@ -223,6 +223,7 @@ export class WatermarkExportService {
   }
 
   async createPdfFromImage(imgBlob: Blob): Promise<Blob> {
+    const { PDFDocument } = await import('pdf-lib');
     const pdfDoc = await PDFDocument.create();
     const imgBytes = await imgBlob.arrayBuffer();
     let imgEmbed;
@@ -263,6 +264,7 @@ export class WatermarkExportService {
 
   async processPDF(file: File, p: WatermarkParams, options: PdfExportOptions = {}): Promise<Blob> {
     const buffer = await file.arrayBuffer();
+    const { PDFDocument } = await import('pdf-lib');
     const pdfDoc = await PDFDocument.load(buffer);
     const pages = pdfDoc.getPages();
     // 未選取的頁面維持原樣，只對選取的頁面加浮水印
