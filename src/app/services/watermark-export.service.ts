@@ -43,7 +43,7 @@ export class WatermarkExportService {
 
     if (p.mode === 'single') {
       const textW = targetCtx.measureText(p.text).width;
-      const { x, y } = getSingleAnchor(width, height, fontSize, textW, p.pos, p.customPos);
+      const { x, y } = getSingleAnchor(width, height, fontSize, textW, p.pos, p.customPos, p.rotate);
 
       targetCtx.translate(x, y);
       targetCtx.rotate((p.rotate * Math.PI) / 180);

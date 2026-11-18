@@ -53,6 +53,18 @@ describe('watermark-layout', () => {
     it('customPos (ratios) overrides the preset', () => {
       expect(anchor('top-left', { x: 0.25, y: 0.5 })).toEqual({ x: 100, y: 100 });
     });
+
+    it('keeps a custom position inside the canvas', () => {
+      expect(anchor('middle-center', { x: 0, y: 0 })).toEqual({ x: 20, y: 10 });
+      expect(anchor('middle-center', { x: 1, y: 1 })).toEqual({ x: 380, y: 190 });
+    });
+
+    it('uses the rotated bounding box when clamping', () => {
+      // 文字 40x20 旋轉 90 度後外框為 20x40 → x 範圍 [10,390]，y 範圍 [20,180]
+      const p = getSingleAnchor(400, 200, 20, 40, 'middle-center', { x: 0, y: 0 }, 90);
+      expect(p.x).toBeCloseTo(10);
+      expect(p.y).toBeCloseTo(20);
+    });
   });
 
   describe('clampAnchorToCanvas', () => {
@@ -67,6 +79,13 @@ describe('watermark-layout', () => {
     it('clamps each side', () => {
       expect(clamp(-50, -50)).toEqual({ x: 50, y: 10 });
       expect(clamp(999, 999)).toEqual({ x: 350, y: 190 });
+    });
+
+    it('accounts for rotation', () => {
+      // 100x20 旋轉 90 度 → 外框 20x100：x 範圍 [10,390]，y 範圍 [50,150]
+      const p = clampAnchorToCanvas({ x: 0, y: 0 }, 400, 200, 100, 20, 90);
+      expect(p.x).toBeCloseTo(10);
+      expect(p.y).toBeCloseTo(50);
     });
 
     it('pins text wider than the canvas to the center', () => {

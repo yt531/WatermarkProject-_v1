@@ -330,7 +330,8 @@ export class PreviewPaneComponent implements AfterViewInit {
       canvas.width,
       canvas.height,
       layout.textW,
-      layout.fontSize
+      layout.fontSize,
+      this.stateService.watermarkRotate()
     );
 
     this.stateService.watermarkCustomPos.set({ x: moved.x / canvas.width, y: moved.y / canvas.height });
@@ -344,7 +345,7 @@ export class PreviewPaneComponent implements AfterViewInit {
     const fontSize = getFontSize(canvas.width, p.size);
     ctx.font = getFontCss(fontSize, p.font);
     const textW = ctx.measureText(p.text).width;
-    const anchor = getSingleAnchor(canvas.width, canvas.height, fontSize, textW, p.pos, p.customPos);
+    const anchor = getSingleAnchor(canvas.width, canvas.height, fontSize, textW, p.pos, p.customPos, p.rotate);
     return { anchor, textW, fontSize };
   }
 

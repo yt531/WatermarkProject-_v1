@@ -20,6 +20,7 @@ export function getFontCss(fontSize: number, family: string): string {
 /**
  * 單張模式下文字中心點的位置（畫布像素）。
  * customPos（0~1 的比例）優先於九宮格預設位置 pos（例如 "top-left"）。
+ * 結果一律限制在畫布內：旋轉後的文字外框不會超出上下左右邊界。
  */
 export function getSingleAnchor(
   canvasWidth: number,
@@ -27,11 +28,22 @@ export function getSingleAnchor(
   fontSize: number,
   textWidth: number,
   pos: string,
-  customPos: Point | null
+  customPos: Point | null,
+  rotateDeg = 0
 ): Point {
-  if (customPos) {
-    return { x: customPos.x * canvasWidth, y: customPos.y * canvasHeight };
-  }
+  const raw = customPos
+    ? { x: customPos.x * canvasWidth, y: customPos.y * canvasHeight }
+    : getPresetAnchor(canvasWidth, canvasHeight, fontSize, textWidth, pos);
+  return clampAnchorToCanvas(raw, canvasWidth, canvasHeight, textWidth, fontSize, rotateDeg);
+}
+
+function getPresetAnchor(
+  canvasWidth: number,
+  canvasHeight: number,
+  fontSize: number,
+  textWidth: number,
+  pos: string
+): Point {
 
   const [vertical, horizontal] = pos.split('-');
   const margin = fontSize;
@@ -49,14 +61,25 @@ export function getSingleAnchor(
   return { x, y };
 }
 
-/** 把中心點限制在畫布內，讓整段文字不會被拖出邊界（文字比畫布大時固定在中央） */
+/**
+ * 把中心點限制在畫布內，讓整段文字不會被拖出邊界（文字比畫布大時固定在中央）。
+ * rotateDeg 為文字旋轉角度，會以旋轉後的外框來計算可移動範圍。
+ */
 export function clampAnchorToCanvas(
   anchor: Point,
   canvasWidth: number,
   canvasHeight: number,
   textWidth: number,
-  textHeight: number
+  textHeight: number,
+  rotateDeg = 0
 ): Point {
+  const rad = (rotateDeg * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(rad));
+  const sin = Math.abs(Math.sin(rad));
+  const boxW = textWidth * cos + textHeight * sin;
+  const boxH = textWidth * sin + textHeight * cos;
+  textWidth = boxW;
+  textHeight = boxH;
   const minX = Math.min(textWidth / 2, canvasWidth / 2);
   const maxX = Math.max(canvasWidth - textWidth / 2, canvasWidth / 2);
   const minY = Math.min(textHeight / 2, canvasHeight / 2);
