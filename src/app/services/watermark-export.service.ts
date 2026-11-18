@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { PDFDocument } from 'pdf-lib';
 import { parsePageRange } from './page-range';
 import { loadPdfjs } from './pdfjs-loader';
+import { getFontCss, getFontSize, getSingleAnchor } from './watermark-layout';
 import { WatermarkStateService, WatermarkParams } from './watermark-state.service';
 
 export interface PdfExportOptions {
@@ -21,8 +22,7 @@ export class WatermarkExportService {
   stateService = inject(WatermarkStateService);
 
   applyWatermarkToCanvas(targetCtx: CanvasRenderingContext2D, width: number, height: number, p: WatermarkParams) {
-    const basePx = width / 20;
-    const fontSize = basePx * (p.size / 50);
+    const fontSize = getFontSize(width, p.size);
 
     targetCtx.save();
 
@@ -37,7 +37,7 @@ export class WatermarkExportService {
       targetCtx.clip('evenodd');
     }
 
-    targetCtx.font = `bold ${fontSize}px "${p.font}"`;
+    targetCtx.font = getFontCss(fontSize, p.font);
     targetCtx.fillStyle = p.color;
     targetCtx.globalAlpha = p.opacity;
     targetCtx.textBaseline = 'middle';
@@ -45,24 +45,7 @@ export class WatermarkExportService {
 
     if (p.mode === 'single') {
       const textW = targetCtx.measureText(p.text).width;
-      let x = 0, y = 0;
-      const parts = p.pos.split('-');
-      const v = parts[0];
-      const h = parts[1];
-      const margin = fontSize;
-
-      if (p.customPos) {
-        x = p.customPos.x * width;
-        y = p.customPos.y * height;
-      } else {
-        if (h === 'left') x = margin + textW / 2;
-        else if (h === 'right') x = width - margin - textW / 2;
-        else x = width / 2;
-
-        if (v === 'top') y = margin + fontSize / 2;
-        else if (v === 'bottom') y = height - margin - fontSize / 2;
-        else y = height / 2;
-      }
+      const { x, y } = getSingleAnchor(width, height, fontSize, textW, p.pos, p.customPos);
 
       targetCtx.translate(x, y);
       targetCtx.rotate((p.rotate * Math.PI) / 180);

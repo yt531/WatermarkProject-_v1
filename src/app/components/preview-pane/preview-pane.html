@@ -17,9 +17,10 @@
 
     <div class="flex-1 w-full h-full flex justify-center items-center p-2 md:p-5">
       <div
-        class="relative shadow-md w-full h-full max-w-[800px] flex justify-center items-center bg-white min-h-[150px] overflow-hidden group">
-        <div class="relative max-w-full max-h-full inline-block leading-none">
-          <canvas #previewCanvas class="max-w-full max-h-full block bg-white object-contain shadow-sm"
+        class="relative shadow-md w-full h-full max-w-[800px] flex justify-center items-center bg-white min-h-[150px] overflow-hidden group [container-type:size]">
+        <div class="relative inline-block leading-none">
+          <!-- 以外層容器的寬高（cqw/cqh）限制畫布，高度不足時整頁等比縮小而不是被裁掉 -->
+          <canvas #previewCanvas class="max-w-[100cqw] max-h-[100cqh] block bg-white object-contain shadow-sm"
             [class.cursor-move]="stateService.watermarkMode() === 'single'" 
             (pointerdown)="onPointerDown($event)"
             (pointermove)="onPointerMove($event)" 
@@ -76,17 +77,32 @@
   }
 </div>
 
-@if (isFullscreen()) {
-<div class="fixed inset-0 z-50 bg-black/90 flex justify-center items-center p-4">
-  <button (click)="closeFullscreen()"
+<!-- 使用原生 dialog：顯示在瀏覽器最上層，不會被下方工具列或其他層級蓋住 -->
+<dialog #fullscreenDialog (close)="onFullscreenClosed()"
+  class="fixed inset-0 m-0 p-4 w-dvw h-dvh max-w-none max-h-none border-0 bg-black/90 open:flex justify-center items-center">
+  <button (click)="closeFullscreen()" aria-label="關閉"
     class="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[60] cursor-pointer">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
       class="w-8 h-8">
       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
     </svg>
   </button>
-  <div class="relative w-full h-full flex justify-center items-center p-4">
-    <img [src]="modalImageSrc()" class="max-w-full max-h-full object-contain shadow-2xl" alt="Fullscreen preview" />
+  @if (isFullscreen()) {
+  <!-- 縮放區：雙指縮放、單指拖曳（放大後）、雙擊放大/還原、滑鼠滾輪縮放 -->
+  <div class="relative w-full h-full flex justify-center items-center overflow-hidden touch-none select-none"
+    (pointerdown)="onZoomPointerDown($event)" (pointermove)="onZoomPointerMove($event)"
+    (pointerup)="onZoomPointerUp($event)" (pointercancel)="onZoomPointerUp($event)" (wheel)="onZoomWheel($event)">
+    <img [src]="modalImageSrc()" draggable="false" [style.transform]="zoomTransform()"
+      class="max-w-full max-h-full object-contain shadow-2xl will-change-transform" alt="Fullscreen preview" />
   </div>
-</div>
-}
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-[60]">
+    <span class="px-3 py-1 rounded-full bg-black/60 text-white text-[12px]">
+      {{ zoom().scale === 1 ? '雙指縮放 / 雙擊放大' : (zoom().scale | number: '1.1-1') + 'x' }}
+      @if (isHiResLoading()) { · 高解析載入中… }
+    </span>
+    @if (zoom().scale > 1) {
+    <button (click)="resetZoom()" class="px-3 py-1 rounded-full bg-white/90 text-[#333] text-[12px] cursor-pointer">還原</button>
+    }
+  </div>
+  }
+</dialog>

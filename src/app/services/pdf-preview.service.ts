@@ -33,6 +33,20 @@ export class PdfPreviewService {
     return (await this.open(file)).numPages;
   }
 
+  /** 以指定倍率把某一頁畫到新的 canvas（不快取，用完請由呼叫端釋放） */
+  async renderPageToCanvas(file: File, pageNum: number, scale: number): Promise<HTMLCanvasElement> {
+    const pdf = await this.open(file);
+    const page = await pdf.getPage(pageNum);
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+    page.cleanup();
+    return canvas;
+  }
+
   /** 渲染指定頁（從 1 開始），回傳 JPEG data URL */
   async renderPage(file: File, pageNum: number): Promise<string> {
     let cache = this.pageCache.get(file);
@@ -43,16 +57,8 @@ export class PdfPreviewService {
     const hit = cache.get(pageNum);
     if (hit) return hit;
 
-    const pdf = await this.open(file);
-    const page = await pdf.getPage(pageNum);
-    const viewport = page.getViewport({ scale: PREVIEW_SCALE });
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d')!;
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+    const canvas = await this.renderPageToCanvas(file, pageNum, PREVIEW_SCALE);
     const url = canvas.toDataURL('image/jpeg');
-    page.cleanup();
     canvas.width = canvas.height = 0;
 
     cache.set(pageNum, url);
