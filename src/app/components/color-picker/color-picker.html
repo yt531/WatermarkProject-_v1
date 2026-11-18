@@ -42,17 +42,17 @@
         <div class="flex items-center mb-2 gap-2">
           <label class="text-[13px] min-w-[30px] text-[#444]">HEX</label>
           <input type="text" [value]="inputHex" (input)="syncColor('hex', $event)"
-            class="w-full py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none">
+            class="w-full py-1 px-2 border border-[#888] rounded text-[13px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none">
           <input type="color" [value]="inputHex" (input)="syncColor('picker', $event)" class="invisible w-0 absolute">
         </div>
         <div class="flex items-center gap-1">
           <label class="text-[13px] min-w-[30px] text-[#444]">RGB</label>
           <input type="number" [value]="inputR" max="255" (input)="syncColor('rgb', $event)"
-            class="w-full py-1 px-1 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none">
+            class="w-full py-1 px-1 border border-[#888] rounded text-[13px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none">
           <input type="number" [value]="inputG" max="255" (input)="syncColor('rgb', $event)"
-            class="w-full py-1 px-1 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none">
+            class="w-full py-1 px-1 border border-[#888] rounded text-[13px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none">
           <input type="number" [value]="inputB" max="255" (input)="syncColor('rgb', $event)"
-            class="w-full py-1 px-1 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none">
+            class="w-full py-1 px-1 border border-[#888] rounded text-[13px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none">
         </div>
       </div>
       }

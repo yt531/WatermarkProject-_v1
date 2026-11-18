@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { WatermarkStateService } from '../../services/watermark-state.service';
 import { WatermarkExportService } from '../../services/watermark-export.service';
 
@@ -10,10 +10,8 @@ import { WatermarkExportService } from '../../services/watermark-export.service'
 export class ExportPanelComponent {
   stateService = inject(WatermarkStateService);
   exportService = inject(WatermarkExportService);
-  cdr = inject(ChangeDetectorRef);
-
-  isProcessing = false;
-  statusMsg = '';
+  get isProcessing() { return this.exportService.isProcessing(); }
+  get statusMsg() { return this.exportService.statusMsg(); }
 
   updateName(event: Event) {
     this.stateService.outputFileName.set((event.target as HTMLInputElement).value);
@@ -52,22 +50,7 @@ export class ExportPanelComponent {
     return 'bg-transparent text-[#555] hover:bg-[#e0e0e0]';
   }
 
-  async processAll() {
-    if (this.isProcessing) return;
-    this.isProcessing = true;
-    this.statusMsg = '';
-    this.cdr.detectChanges();
-
-    try {
-      await this.exportService.processAll((msg) => {
-        this.statusMsg = msg;
-        this.cdr.detectChanges();
-      });
-    } catch (e) {
-      // Error is handled in service
-    } finally {
-      this.isProcessing = false;
-      this.cdr.detectChanges();
-    }
+  processAll() {
+    return this.exportService.runExport();
   }
 }

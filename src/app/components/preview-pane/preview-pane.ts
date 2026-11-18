@@ -28,11 +28,12 @@ const HIRES_MAX_SIDE = 3000;
 const DOUBLE_TAP_MS = 300;
 const TAP_SLOP_PX = 10;
 import { SafeZoneBoxComponent } from '../safe-zone-box/safe-zone-box';
+import { FileUploaderComponent } from '../file-uploader/file-uploader';
 
 @Component({
   selector: 'app-preview-pane',
   standalone: true,
-  imports: [SafeZoneBoxComponent, DecimalPipe],
+  imports: [SafeZoneBoxComponent, FileUploaderComponent, DecimalPipe],
   templateUrl: './preview-pane.html'
 })
 export class PreviewPaneComponent implements AfterViewInit {

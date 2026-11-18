@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { parsePageRange } from './page-range';
 import { loadPdfjs } from './pdfjs-loader';
 import { getFontCss, getFontSize, getSingleAnchor } from './watermark-layout';
@@ -67,6 +67,24 @@ export class WatermarkExportService {
     }
     targetCtx.restore();
     targetCtx.globalAlpha = 1.0;
+  }
+
+  /** 匯出進行中與狀態文字：匯出面板與預覽區的浮動匯出鈕共用 */
+  isProcessing = signal(false);
+  statusMsg = signal('');
+
+  /** 帶有共用進度狀態的匯出入口 */
+  async runExport(): Promise<void> {
+    if (this.isProcessing()) return;
+    this.isProcessing.set(true);
+    this.statusMsg.set('');
+    try {
+      await this.processAll((msg) => this.statusMsg.set(msg));
+    } catch {
+      // 錯誤已在 processAll 內處理
+    } finally {
+      this.isProcessing.set(false);
+    }
   }
 
   async processAll(statusCallback: (msg: string) => void): Promise<void> {

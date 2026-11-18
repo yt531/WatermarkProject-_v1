@@ -10,7 +10,7 @@
   <legend class="text-[12px] text-(--color-primary) font-bold px-1">內容與字型</legend>
   <div class="flex items-center mb-2 gap-2">
     <input type="text" [value]="stateService.watermarkText()" (input)="updateText($event)" 
-           class="w-full py-1 px-2 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
+           class="w-full py-1 px-2 border border-[#888] rounded text-[13px] max-md:text-[16px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
   </div>
   <div class="relative w-full">
     <button (click)="toggleFontDropdown()"
