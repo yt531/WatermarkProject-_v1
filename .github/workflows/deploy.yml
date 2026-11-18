@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Build the Angular app
-        run: npx ng build
+        run: npx ng build --base-href /WatermarkProject-_v1/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
