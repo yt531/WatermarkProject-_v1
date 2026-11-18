@@ -1,18 +1,20 @@
-<label class="font-bold text-(--color-primary) block mb-2">🛡️ 浮水印用途：</label>
-<div class="flex bg-[#eee] rounded p-[2px] mb-2.5">
-  <button 
-    [class]="getBtnClass('general')"
-    (click)="setUsageMode('general')">
-    📄 一般文件
-  </button>
-  <button 
-    [class]="getBtnClass('idcard')"
-    (click)="setUsageMode('idcard')">
-    🪪 證件保護
-  </button>
-</div>
-@if (stateService.usageMode() === 'idcard') {
-  <div class="text-[12px] text-[#d9534f] mt-[5px]">
-    💡 請在預覽圖上，拖曳調整紅色框框位置，框選處將<b>不會</b>加上浮水印。
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
+  <legend class="text-[14px] text-[#555] font-bold px-1">用途</legend>
+  <div class="flex bg-[#eee] rounded p-[2px]">
+    <button
+      [class]="getBtnClass('general')"
+      (click)="setUsageMode('general')">
+      一般文件
+    </button>
+    <button
+      [class]="getBtnClass('idcard')"
+      (click)="setUsageMode('idcard')">
+      證件保護
+    </button>
   </div>
-}
+  @if (stateService.usageMode() === 'idcard') {
+    <div class="text-[14px] text-[#d9534f] mt-2">
+      拖曳預覽圖上的紅框，框內不加浮水印。
+    </div>
+  }
+</fieldset>

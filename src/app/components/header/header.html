@@ -2,8 +2,37 @@
   <div class="flex items-center gap-3">
     <h1 class="m-0 text-[18px] font-normal">💧 專業浮水印工作室</h1>
   </div>
-  
+
   <div class="flex items-center gap-3">
     <span *ngIf="statusMsg" class="text-[12px] opacity-80 hidden md:inline-block">{{ statusMsg }}</span>
+    <button (click)="openHelp()" aria-label="使用說明"
+      class="flex items-center gap-1.5 h-11 min-w-11 -mr-2 px-2.5 justify-center rounded-full bg-transparent hover:bg-white/15 text-white border-none cursor-pointer transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+      </svg>
+      <span class="hidden md:inline text-[14px]">使用說明</span>
+    </button>
   </div>
 </header>
+
+<!-- 使用說明：原生 dialog，點背景或右上角 × 關閉 -->
+<dialog #helpDialog (click)="onHelpBackdropClick($event)"
+  class="m-auto w-[min(92vw,480px)] max-h-[85dvh] p-0 rounded-lg border-0 shadow-2xl text-[#333] backdrop:bg-black/50">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 sticky top-0 bg-white">
+    <h2 class="m-0 text-[18px] font-bold">使用說明</h2>
+    <button (click)="closeHelp()" aria-label="關閉"
+      class="w-11 h-11 -mr-2 flex items-center justify-center rounded-full bg-transparent hover:bg-gray-100 border-none cursor-pointer text-gray-600">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <ol class="m-0 px-4 py-3 list-none flex flex-col gap-3 text-[15px] leading-relaxed">
+    @for (step of helpSteps; track step.title) {
+    <li>
+      <div class="font-bold text-(--color-primary)">{{ step.title }}</div>
+      <div class="text-[#444]">{{ step.text }}</div>
+    </li>
+    }
+  </ol>
+</dialog>

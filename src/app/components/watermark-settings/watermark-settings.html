@@ -1,20 +1,24 @@
 <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-  <legend class="text-[12px] text-(--color-primary) font-bold px-1">浮水印用途</legend>
+  <legend class="text-[14px] text-[#555] font-bold px-1">排列方式</legend>
   <div class="flex bg-[#eee] rounded p-[2px]">
     <button [class]="getModeBtnClass('single')" (click)="stateService.watermarkMode.set('single')">單一浮水印</button>
     <button [class]="getModeBtnClass('tiled')" (click)="stateService.watermarkMode.set('tiled')">鋪滿 (密集)</button>
   </div>
 </fieldset>
 
-<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
-  <legend class="text-[12px] text-(--color-primary) font-bold px-1">內容與字型</legend>
-  <div class="flex items-center mb-2 gap-2">
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
+  <legend class="text-[14px] text-[#555] font-bold px-1">文字</legend>
+  <div class="flex items-center gap-2">
     <input type="text" [value]="stateService.watermarkText()" (input)="updateText($event)" 
-           class="w-full py-1 px-2 border border-[#888] rounded text-[13px] max-md:text-[16px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
+           class="w-full py-1 px-2 border border-[#888] rounded text-[14px] max-md:text-[16px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
   </div>
+</fieldset>
+
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
+  <legend class="text-[14px] text-[#555] font-bold px-1">字型</legend>
   <div class="relative w-full">
     <button (click)="toggleFontDropdown()"
-            class="w-full flex items-center justify-between py-1.5 px-3 border border-[#888] rounded text-[13px] bg-white hover:bg-gray-50 focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px] cursor-pointer transition-colors text-left"
+            class="w-full flex items-center justify-between py-1.5 px-3 border border-[#888] rounded text-[14px] bg-white hover:bg-gray-50 focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px] cursor-pointer transition-colors text-left"
             [style.font-family]="stateService.watermarkFont()">
       <span>{{ currentFontLabel }}</span>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 transition-transform duration-200" [class.rotate-180]="isFontDropdownOpen" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,14 +33,14 @@
           <button (click)="selectFont(font.value)"
                   (mouseenter)="onFontHover(font.value)"
                   (mouseleave)="onFontLeave()"
-                  class="w-full flex items-center justify-between px-3 py-2 text-[13px] hover:bg-(--color-primary) hover:text-white cursor-pointer transition-colors text-left group"
+                  class="w-full flex items-center justify-between px-3 py-2 text-[14px] hover:bg-(--color-primary) hover:text-white cursor-pointer transition-colors text-left group"
                   [class.bg-blue-50]="stateService.watermarkFont() === font.value"
                   [class.text-(--color-primary)]="stateService.watermarkFont() === font.value">
             <div class="flex flex-col overflow-hidden pr-2 flex-1">
               <span class="text-[15px] truncate" [style.font-family]="font.value">
                 {{ stateService.watermarkText() || font.label }}
               </span>
-              <span class="text-[10px] opacity-70 mt-0.5" style="font-family: sans-serif;">
+              <span class="text-[12px] opacity-70 mt-0.5" style="font-family: sans-serif;">
                 {{ font.label }} {{ font.sub }}
               </span>
             </div>

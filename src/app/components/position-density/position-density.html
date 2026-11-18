@@ -1,9 +1,8 @@
 @if (stateService.watermarkMode() === 'single') {
   <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
-    <legend class="text-[12px] text-(--color-primary) font-bold px-1">位置設定</legend>
+    <legend class="text-[14px] text-[#555] font-bold px-1">位置</legend>
     <div class="flex items-center gap-2">
-      <label class="text-[13px] min-w-[60px] text-[#444]">快速定位</label>
-      <div class="grid grid-cols-3 gap-1 w-[100px] max-md:w-full max-md:gap-2">
+      <div class="grid grid-cols-3 gap-1 w-[140px] max-md:w-full max-md:gap-2">
         <button [class]="getGridBtnClass('top-left')" (click)="setPos('top-left')"></button>
         <button [class]="getGridBtnClass('top-center')" (click)="setPos('top-center')"></button>
         <button [class]="getGridBtnClass('top-right')" (click)="setPos('top-right')"></button>
@@ -18,12 +17,12 @@
   </fieldset>
 } @else {
   <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
-    <legend class="text-[12px] text-(--color-primary) font-bold px-1">密度設定 (鋪滿)</legend>
+    <legend class="text-[14px] text-[#555] font-bold px-1">密度</legend>
     <div class="flex items-center gap-2">
-      <label class="text-[13px] min-w-[60px] text-[#444]">間距</label>
+      <label class="text-[14px] min-w-[60px] text-[#444]">間距</label>
       <div class="flex items-center w-full gap-[5px]">
         <input type="range" min="50" max="500" [value]="stateService.watermarkGap()" (input)="updateGap($event)" class="flex-1 cursor-pointer max-md:min-h-[44px]">
-        <input type="number" class="w-[50px] text-right py-1 px-2 border border-[#888] rounded text-[13px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none" [value]="stateService.watermarkGap()" (input)="updateGap($event)">
+        <input type="number" class="w-[50px] text-right py-1 px-2 border border-[#888] rounded text-[14px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none" [value]="stateService.watermarkGap()" (input)="updateGap($event)">
       </div>
     </div>
   </fieldset>
