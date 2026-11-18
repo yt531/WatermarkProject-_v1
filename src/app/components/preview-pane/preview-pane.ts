@@ -107,7 +107,7 @@ export class PreviewPaneComponent implements AfterViewInit {
     this.resetZoom();
     // Redraw the canvas on the next frame to prevent the canvas from becoming blank on mobile browsers
     // (due to canvas context loss or memory reclamation when displaying large base64 images).
-    requestAnimationFrame(() => this.drawCanvas());
+    this.scheduleDraw();
   }
 
   private releaseHiRes() {
@@ -390,7 +390,7 @@ export class PreviewPaneComponent implements AfterViewInit {
       const params = this.stateService.getParams();
       this.stateService.isCurrentPageWatermarked(); // 頁面範圍改變時要重畫
       if (this.stateService.isLoaded() && this.previewImg.src) {
-        requestAnimationFrame(() => this.drawCanvas());
+        this.scheduleDraw();
       }
     });
   }
@@ -441,6 +441,18 @@ export class PreviewPaneComponent implements AfterViewInit {
       }
     }
 
+    private drawQueued = false;
+
+    /** 合併重畫：拖曳滑桿時一個畫面影格內無論觸發幾次，只畫一次 */
+    scheduleDraw() {
+      if (this.drawQueued) return;
+      this.drawQueued = true;
+      requestAnimationFrame(() => {
+        this.drawQueued = false;
+        this.drawCanvas();
+      });
+    }
+
     drawCanvas() {
       if (!this.canvasRef) {
         if (this.stateService.isLoaded()) {
@@ -462,8 +474,15 @@ export class PreviewPaneComponent implements AfterViewInit {
       let scale = 1;
       if (this.previewImg.width > maxDisplayW) scale = maxDisplayW / this.previewImg.width;
 
-      canvas.width = this.previewImg.width * scale;
-      canvas.height = this.previewImg.height * scale;
+      // 重設 canvas 寬高會重新配置整塊點陣圖並清空畫面，尺寸沒變就只清除內容
+      const w = this.previewImg.width * scale;
+      const h = this.previewImg.height * scale;
+      if (canvas.width !== Math.floor(w) || canvas.height !== Math.floor(h)) {
+        canvas.width = w;
+        canvas.height = h;
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
 
       ctx.drawImage(this.previewImg, 0, 0, canvas.width, canvas.height);
 
