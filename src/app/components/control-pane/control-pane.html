@@ -27,7 +27,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
         </button>
       </div>
-      <div class="pointer-events-auto pb-10">
+      <div class="pointer-events-auto md:pb-10">
         @if (stateService.files().length > 1) {
           <div class="p-[15px] border-b border-(--color-border) bg-[#fff] flex justify-between items-center md:shadow-none">
             <div class="text-[14px] font-bold text-[#555]">套用方式</div>
@@ -37,9 +37,10 @@
             </div>
           </div>
         }
-        <div class="p-[15px] pb-0 bg-white">
-          <app-mode-selector class="block mb-4"></app-mode-selector>
-          <app-watermark-settings class="block"></app-watermark-settings>
+        <div class="p-[15px] max-md:pt-3 pb-0 bg-white">
+          <app-sub-tabs class="mb-3" [tabs]="contentTabs" [(active)]="contentSub"></app-sub-tabs>
+          <app-mode-selector class="block mb-4 max-md:mb-0" [class.max-md:hidden]="contentSub !== 'purpose'"></app-mode-selector>
+          <app-watermark-settings class="block" [sub]="contentSub"></app-watermark-settings>
         </div>
       </div>
     </div>
@@ -52,8 +53,9 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
         </button>
       </div>
-      <div class="p-[15px] bg-white pointer-events-auto">
-        <app-appearance-settings></app-appearance-settings>
+      <div class="p-[15px] max-md:pt-3 bg-white pointer-events-auto">
+        <app-sub-tabs class="mb-3" [tabs]="styleTabs" [(active)]="styleSub"></app-sub-tabs>
+        <app-appearance-settings [sub]="styleSub"></app-appearance-settings>
       </div>
     </div>
 
@@ -78,8 +80,9 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
         </button>
       </div>
-      <div class="p-[15px] bg-white mt-auto shadow-[0_-2px_10px_rgba(0,0,0,0.02)] md:shadow-none pointer-events-auto">
-        <app-export-panel></app-export-panel>
+      <div class="p-[15px] max-md:pt-3 bg-white mt-auto shadow-[0_-2px_10px_rgba(0,0,0,0.02)] md:shadow-none pointer-events-auto">
+        <app-sub-tabs class="mb-3" [tabs]="exportTabs" [active]="exportSubEffective" (activeChange)="exportSub = $event"></app-sub-tabs>
+        <app-export-panel [sub]="exportSubEffective"></app-export-panel>
       </div>
     </div>
   </div>

@@ -1,12 +1,12 @@
 <div class="w-full">
-  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-    <legend class="text-[14px] text-[#555] font-bold px-1">檔名</legend>
+  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4 max-md:mb-3" [class.max-md:hidden]="hide('name')">
+    <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">檔名</legend>
     <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="w-full py-2 px-2 border border-[#888] rounded text-[14px] max-md:text-[16px] max-md:min-h-[44px] focus:border-(--color-primary) focus:outline-none">
   </fieldset>
 
   @if (stateService.hasPdf()) {
-  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-    <legend class="text-[14px] text-[#555] font-bold px-1">PDF</legend>
+  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4 max-md:mb-3" [class.max-md:hidden]="hide('pdf')">
+    <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">PDF</legend>
 
     <label class="text-[14px] text-[#444] block mb-1" for="pageRangeInput">套用頁面</label>
     <input id="pageRangeInput" type="text" [value]="stateService.pageRange()" (input)="updatePageRange($event)"
@@ -32,8 +32,8 @@
   </fieldset>
   }
 
-  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-    <legend class="text-[14px] text-[#555] font-bold px-1">格式</legend>
+  <fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4 max-md:mb-3" [class.max-md:hidden]="hide('format')">
+    <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">格式</legend>
     <div class="flex bg-[#f0f0f0] rounded overflow-hidden border border-[#aaa] divide-x divide-[#aaa]">
       <button (click)="setFormat('auto')" [class]="getFormatBtnClass('auto')" class="flex-1 py-1.5 text-[14px] max-md:min-h-[44px] font-medium transition-colors outline-none cursor-pointer">自動</button>
       <button (click)="setFormat('png')" [class]="getFormatBtnClass('png')" class="flex-1 py-1.5 text-[14px] max-md:min-h-[44px] font-medium transition-colors outline-none cursor-pointer">PNG</button>
@@ -42,6 +42,8 @@
     </div>
   </fieldset>
 
+  <!-- 手機版：匯出鈕固定在面板底部，切換標籤或捲動時都按得到 -->
+  <div class="max-md:sticky max-md:bottom-0 max-md:bg-white max-md:pt-1">
   <button class="w-full p-3 bg-[#28a745] hover:bg-[#218838] transition-colors text-white border-none rounded text-[16px] font-bold cursor-pointer disabled:bg-[#ccc] disabled:cursor-not-allowed flex items-center justify-center gap-2"
           [disabled]="!stateService.isLoaded() || isProcessing || !!stateService.pageRangeError()"
           (click)="processAll()">
@@ -51,4 +53,5 @@
     {{ isProcessing ? '處理中...' : '匯出檔案' }}
   </button>
   <div class="text-center text-[14px] mt-1.5 text-[#666]">{{ statusMsg }}</div>
+  </div>
 </div>

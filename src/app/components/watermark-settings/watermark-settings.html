@@ -1,21 +1,21 @@
-<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-  <legend class="text-[14px] text-[#555] font-bold px-1">排列方式</legend>
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4 max-md:mb-0" [class.max-md:hidden]="hide('layout')">
+  <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">排列方式</legend>
   <div class="flex bg-[#eee] rounded p-[2px]">
     <button [class]="getModeBtnClass('single')" (click)="stateService.watermarkMode.set('single')">單一浮水印</button>
     <button [class]="getModeBtnClass('tiled')" (click)="stateService.watermarkMode.set('tiled')">鋪滿 (密集)</button>
   </div>
 </fieldset>
 
-<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-  <legend class="text-[14px] text-[#555] font-bold px-1">文字</legend>
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4 max-md:mb-0" [class.max-md:hidden]="hide('text')">
+  <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">文字</legend>
   <div class="flex items-center gap-2">
     <input type="text" [value]="stateService.watermarkText()" (input)="updateText($event)" 
            class="w-full py-1 px-2 border border-[#888] rounded text-[14px] max-md:text-[16px] focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px]">
   </div>
 </fieldset>
 
-<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0">
-  <legend class="text-[14px] text-[#555] font-bold px-1">字型</legend>
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0" [class.max-md:hidden]="hide('font')">
+  <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">字型</legend>
   <div class="relative w-full">
     <button (click)="toggleFontDropdown()"
             class="w-full flex items-center justify-between py-1.5 px-3 border border-[#888] rounded text-[14px] bg-white hover:bg-gray-50 focus:border-(--color-primary) focus:outline-none max-md:min-h-[44px] cursor-pointer transition-colors text-left"

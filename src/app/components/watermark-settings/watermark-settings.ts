@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { WatermarkStateService } from '../../services/watermark-state.service';
 
 @Component({
@@ -8,6 +8,13 @@ import { WatermarkStateService } from '../../services/watermark-state.service';
 })
 export class WatermarkSettingsComponent {
   stateService = inject(WatermarkStateService);
+
+  /** 手機版子標籤：只顯示對應的區塊；未指定（桌面版）時全部顯示 */
+  sub = input<string | null>(null);
+  hide(key: string) {
+    const s = this.sub();
+    return s !== null && s !== key;
+  }
 
   fonts = [
     { value: 'Arial', label: 'Arial', sub: '(無襯線)' },

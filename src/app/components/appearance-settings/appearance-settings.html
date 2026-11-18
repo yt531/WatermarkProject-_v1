@@ -1,5 +1,5 @@
-<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4">
-  <legend class="text-[14px] text-[#555] font-bold px-1">外觀</legend>
+<fieldset class="border border-[#d0d0d0] rounded p-2.5 m-0 mb-4 max-md:mb-0" [class.max-md:hidden]="hide('look')">
+  <legend class="text-[14px] text-[#555] font-bold px-1 max-md:sr-only">外觀</legend>
   <div class="flex items-center mb-2 gap-2">
     <label class="text-[14px] min-w-[60px] text-[#444]">大小</label>
     <div class="flex items-center w-full gap-[5px]">
@@ -24,4 +24,4 @@
   </div>
 </fieldset>
 
-<app-color-picker></app-color-picker>
+<app-color-picker [class.max-md:hidden]="hide('color')"></app-color-picker>

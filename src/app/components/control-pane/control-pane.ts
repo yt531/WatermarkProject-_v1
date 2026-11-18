@@ -7,6 +7,7 @@ import { WatermarkSettingsComponent } from '../watermark-settings/watermark-sett
 import { AppearanceSettingsComponent } from '../appearance-settings/appearance-settings';
 import { PositionDensityComponent } from '../position-density/position-density';
 import { ExportPanelComponent } from '../export-panel/export-panel';
+import { SubTab, SubTabsComponent } from '../sub-tabs/sub-tabs';
 
 @Component({
   selector: 'app-control-pane',
@@ -18,6 +19,7 @@ import { ExportPanelComponent } from '../export-panel/export-panel';
     AppearanceSettingsComponent,
     PositionDensityComponent,
     ExportPanelComponent,
+    SubTabsComponent,
     CommonModule
   ],
   templateUrl: './control-pane.html'
@@ -26,6 +28,37 @@ export class ControlPaneComponent {
   stateService = inject(WatermarkStateService);
 
   activeMobileMenu: string | null = null;
+
+  // 手機版面板內的子標籤：一次只顯示一個區塊
+  readonly contentTabs: SubTab[] = [
+    { id: 'purpose', label: '用途' },
+    { id: 'layout', label: '排列' },
+    { id: 'text', label: '文字' },
+    { id: 'font', label: '字型' },
+  ];
+  readonly styleTabs: SubTab[] = [
+    { id: 'look', label: '外觀' },
+    { id: 'color', label: '顏色' },
+  ];
+  contentSub = 'purpose';
+  styleSub = 'look';
+  exportSub = 'name';
+
+  /** 匯出標籤：只有載入 PDF 時才有「PDF 設定」 */
+  private readonly exportTabsBase: SubTab[] = [
+    { id: 'name', label: '檔名' },
+    { id: 'format', label: '格式' },
+  ];
+  private readonly exportTabsWithPdf: SubTab[] = [...this.exportTabsBase, { id: 'pdf', label: 'PDF 設定' }];
+
+  get exportTabs(): SubTab[] {
+    return this.stateService.hasPdf() ? this.exportTabsWithPdf : this.exportTabsBase;
+  }
+
+  /** 目前選的標籤已不存在（例如換成非 PDF 檔案）時退回第一個 */
+  get exportSubEffective(): string {
+    return this.exportTabs.some((t) => t.id === this.exportSub) ? this.exportSub : 'name';
+  }
 
   toggleMobileMenu(menu: string) {
     if (this.activeMobileMenu === menu) {
