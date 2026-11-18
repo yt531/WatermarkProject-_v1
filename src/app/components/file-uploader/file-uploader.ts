@@ -1,4 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
+import { PdfPreviewService } from '../../services/pdf-preview.service';
 import { WatermarkStateService } from '../../services/watermark-state.service';
 
 @Component({
@@ -8,6 +9,7 @@ import { WatermarkStateService } from '../../services/watermark-state.service';
 })
 export class FileUploaderComponent {
   stateService = inject(WatermarkStateService);
+  pdfPreview = inject(PdfPreviewService);
 
   fileInfoText = computed(() => {
     const files = this.stateService.files();
@@ -31,21 +33,26 @@ export class FileUploaderComponent {
     this.stateService.toggleApplyMode('unified');
     
     const previews: string[] = [];
+    const pageCounts: number[] = [];
     
     for (let i = 0; i < filesArray.length; i++) {
       const file = filesArray[i];
       if (file.type === 'application/pdf') {
-        const url = await this.renderPdfToPreview(file);
+        const { url, pageCount } = await this.renderPdfToPreview(file);
         previews.push(url);
+        pageCounts.push(pageCount);
       } else {
         // Use URL.createObjectURL instead of FileReader to prevent mobile browsers
         // from crashing or dropping the image due to massive base64 string memory usage.
         const url = URL.createObjectURL(file);
         previews.push(url);
+        pageCounts.push(1);
       }
     }
     
     this.stateService.filePreviews.set(previews);
+    this.stateService.filePageCounts.set(pageCounts);
+    this.stateService.pageRange.set('');
     this.stateService.activeIndex.set(0);
     this.stateService.switchFile(0);
     
@@ -58,22 +65,14 @@ export class FileUploaderComponent {
     }
   }
 
-  async renderPdfToPreview(file: File): Promise<string> {
+  async renderPdfToPreview(file: File): Promise<{ url: string; pageCount: number }> {
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfjsLib = (window as any).pdfjsLib;
-      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5 });
-      const c = document.createElement('canvas');
-      const cx = c.getContext('2d')!;
-      c.width = viewport.width;
-      c.height = viewport.height;
-      await page.render({ canvasContext: cx, viewport: viewport }).promise;
-      return c.toDataURL('image/jpeg');
+      const pageCount = await this.pdfPreview.getPageCount(file);
+      const url = await this.pdfPreview.renderPage(file, 1);
+      return { url, pageCount };
     } catch (e) {
       console.error(e);
-      return this.createWhitePlaceholder(600, 800);
+      return { url: this.createWhitePlaceholder(600, 800), pageCount: 1 };
     }
   }
 

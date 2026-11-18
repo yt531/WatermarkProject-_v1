@@ -1,9 +1,18 @@
 import { Injectable, inject } from '@angular/core';
+import JSZip from 'jszip';
+import { PDFDocument } from 'pdf-lib';
+import { parsePageRange } from './page-range';
+import { loadPdfjs } from './pdfjs-loader';
 import { WatermarkStateService, WatermarkParams } from './watermark-state.service';
 
-declare const JSZip: any;
-declare const pdfjsLib: any;
-declare const PDFLib: any;
+export interface PdfExportOptions {
+  /** 要加浮水印的頁碼，如 "1,3,5-8"；空字串或未提供代表全部頁 */
+  pageRange?: string;
+  /** 輸出解析度倍率，預設 2 */
+  scale?: number;
+  /** 進度回報：目前是第幾個被處理的頁面 / 共幾頁 */
+  onPage?: (page: number, total: number) => void;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -98,6 +107,16 @@ export class WatermarkExportService {
         const file = files[i];
         statusCallback(`正在處理 (${i + 1}/${files.length}): ${file.name}`);
 
+        const pdfOptions: PdfExportOptions = {
+          pageRange: this.stateService.pageRange(),
+          scale: this.stateService.exportScale(),
+          onPage: (page, total) => {
+            if (total > 1) {
+              statusCallback(`正在處理 (${i + 1}/${files.length}): ${file.name} - 第 ${page}/${total} 頁`);
+            }
+          },
+        };
+
         let currentParams = p;
         if (this.stateService.applyMode() === 'independent') {
           // If exporting the active index, use current signals to catch latest unsaved changes.
@@ -111,18 +130,18 @@ export class WatermarkExportService {
         if (file.type === 'application/pdf') {
           if (outFormat === 'png' || outFormat === 'jpg') {
             const mime = outFormat === 'jpg' ? 'image/jpeg' : 'image/png';
-            const blobs = await this.processPdfToImages(file, currentParams, mime);
-            blobs.forEach((blob, index) => {
+            const results = await this.processPdfToImages(file, currentParams, mime, pdfOptions);
+            results.forEach(({ page, blob }) => {
               const nameParts = file.name.split('.');
               nameParts.pop();
-              const pageNum = (index + 1).toString().padStart(2, '0');
+              const pageNum = page.toString().padStart(2, '0');
               const fileName = `${nameParts.join('.')}_page_${pageNum}.${outFormat}`;
               zip.file(fileName, blob);
               outputFiles.push(new File([blob], fileName, { type: blob.type }));
             });
-            totalOutputCount += blobs.length;
+            totalOutputCount += results.length;
           } else {
-            const blob = await this.processPDF(file, currentParams);
+            const blob = await this.processPDF(file, currentParams, pdfOptions);
             const nameParts = file.name.split('.');
             nameParts.pop();
             const fileName = `${nameParts.join('.')}_wm.pdf`;
@@ -179,29 +198,49 @@ export class WatermarkExportService {
     }
   }
 
-  async processPdfToImages(file: File, p: WatermarkParams, mimeType: string): Promise<Blob[]> {
+  async processPdfToImages(
+    file: File,
+    p: WatermarkParams,
+    mimeType: string,
+    options: PdfExportOptions = {}
+  ): Promise<{ page: number; blob: Blob }[]> {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-    const outputBlobs: Blob[] = [];
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 2 });
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d')!;
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      await page.render({ canvasContext: context, viewport: viewport }).promise;
-      this.applyWatermarkToCanvas(context, canvas.width, canvas.height, p);
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((b) => resolve(b!), mimeType, 0.9);
-      });
-      outputBlobs.push(blob);
+    const pdfjsLib = await loadPdfjs();
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+    const outputs: { page: number; blob: Blob }[] = [];
+    try {
+      // 每一頁都會輸出，但只有選取的頁面會加浮水印
+      const selected = new Set(this.resolvePages(options.pageRange, pdf.numPages));
+      const scale = options.scale ?? 2;
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        options.onPage?.(pageNum, pdf.numPages);
+        await this.yieldToUi();
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvas, canvasContext: context, viewport }).promise;
+        if (selected.has(pageNum)) {
+          this.applyWatermarkToCanvas(context, canvas.width, canvas.height, p);
+        }
+        const blob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((b) => resolve(b!), mimeType, 0.9);
+        });
+        outputs.push({ page: pageNum, blob });
+        // 釋放這頁佔用的記憶體
+        page.cleanup();
+        canvas.width = canvas.height = 0;
+      }
+    } finally {
+      await pdf.loadingTask.destroy();
     }
-    return outputBlobs;
+    return outputs;
   }
 
   async createPdfFromImage(imgBlob: Blob): Promise<Blob> {
-    const pdfDoc = await PDFLib.PDFDocument.create();
+    const pdfDoc = await PDFDocument.create();
     const imgBytes = await imgBlob.arrayBuffer();
     let imgEmbed;
     if (imgBlob.type === 'image/png') imgEmbed = await pdfDoc.embedPng(imgBytes);
@@ -209,7 +248,7 @@ export class WatermarkExportService {
     const page = pdfDoc.addPage([imgEmbed.width, imgEmbed.height]);
     page.drawImage(imgEmbed, { x: 0, y: 0, width: imgEmbed.width, height: imgEmbed.height });
     const pdfBytes = await pdfDoc.save();
-    return new Blob([pdfBytes], { type: 'application/pdf' });
+    return new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
   }
 
   processImage(file: File, p: WatermarkParams, mimeType: string | null): Promise<Blob> {
@@ -239,25 +278,41 @@ export class WatermarkExportService {
     });
   }
 
-  async processPDF(file: File, p: WatermarkParams): Promise<Blob> {
+  async processPDF(file: File, p: WatermarkParams, options: PdfExportOptions = {}): Promise<Blob> {
     const buffer = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(buffer);
+    const pdfDoc = await PDFDocument.load(buffer);
     const pages = pdfDoc.getPages();
-    for (let i = 0; i < pages.length; i++) {
-      const page = pages[i];
+    // 未選取的頁面維持原樣，只對選取的頁面加浮水印
+    const selected = this.resolvePages(options.pageRange, pages.length);
+    const scale = options.scale ?? 2;
+    for (let n = 0; n < selected.length; n++) {
+      options.onPage?.(n + 1, selected.length);
+      await this.yieldToUi();
+      const page = pages[selected[n] - 1];
       const { width, height } = page.getSize();
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
-      canvas.width = width;
-      canvas.height = height;
-      this.applyWatermarkToCanvas(ctx, width, height, p);
+      canvas.width = Math.round(width * scale);
+      canvas.height = Math.round(height * scale);
+      this.applyWatermarkToCanvas(ctx, canvas.width, canvas.height, p);
       const pngBlob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), 'image/png'));
       const pngImageBytes = await pngBlob.arrayBuffer();
       const embeddedImage = await pdfDoc.embedPng(pngImageBytes);
       page.drawImage(embeddedImage, { x: 0, y: 0, width: width, height: height });
     }
     const saved = await pdfDoc.save();
-    return new Blob([saved], { type: 'application/pdf' });
+    return new Blob([saved as BlobPart], { type: 'application/pdf' });
+  }
+
+  private resolvePages(range: string | undefined, total: number): number[] {
+    const result = parsePageRange(range ?? '', total);
+    if ('error' in result) throw new Error(`頁碼範圍錯誤：${result.error}`);
+    return result.pages;
+  }
+
+  /** 讓出主執行緒一個回合，使進度文字能被瀏覽器繪製 */
+  private yieldToUi(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve));
   }
 
   async saveFile(blob: Blob, suggestedName: string, ext: string): Promise<string | false> {

@@ -3,6 +3,35 @@
     <label class="text-[13px] font-bold text-[#555] block mb-1">匯出檔名設定：</label>
     <input type="text" [value]="stateService.outputFileName()" (input)="updateName($event)" placeholder="輸入檔名" class="w-full py-2 px-2 mb-3 border border-[#888] rounded text-[13px] focus:border-(--color-primary) focus:outline-none">
     
+    @if (stateService.hasPdf()) {
+    <div class="mb-3 p-2.5 rounded border border-[#ccc] bg-[#fafafa]">
+      <div class="text-[13px] font-bold text-[#555] mb-1.5">PDF 設定</div>
+
+      <label class="text-[12px] text-[#555] block mb-1" for="pageRangeInput">加浮水印的頁面（留空＝全部頁）：</label>
+      <input id="pageRangeInput" type="text" [value]="stateService.pageRange()" (input)="updatePageRange($event)"
+        [placeholder]="'例：1,3,5-8（共 ' + stateService.pageCount() + ' 頁）'"
+        [attr.aria-invalid]="stateService.pageRangeError() ? 'true' : null"
+        class="w-full py-2 px-2 border rounded text-[13px] focus:outline-none"
+        [class.border-[#888]]="!stateService.pageRangeError()"
+        [class.border-red-500]="stateService.pageRangeError()">
+      @if (stateService.pageRangeError(); as err) {
+      <div class="text-[12px] text-red-600 mt-1" role="alert">{{ err }}</div>
+      } @else {
+      <div class="text-[12px] text-[#777] mt-1">
+        將處理 {{ selectedPageCount() }} / {{ stateService.pageCount() }} 頁。未選取的頁面仍會輸出，只是不加浮水印。
+      </div>
+      }
+
+      <label class="text-[12px] text-[#555] block mt-2.5 mb-1">輸出解析度：</label>
+      <div class="flex bg-[#f0f0f0] rounded overflow-hidden border border-[#aaa] divide-x divide-[#aaa]">
+        @for (s of scaleOptions; track s) {
+        <button (click)="setScale(s)" [class]="getScaleBtnClass(s)" class="flex-1 py-1.5 text-[12px] font-medium transition-colors outline-none cursor-pointer">{{ s }}x</button>
+        }
+      </div>
+      <div class="text-[12px] text-[#777] mt-1">倍率越高越清晰，檔案也越大、處理越慢。</div>
+    </div>
+    }
+
     <label class="text-[13px] font-bold text-[#555] block mb-1">匯出格式：</label>
     <div class="flex bg-[#f0f0f0] rounded overflow-hidden border border-[#aaa] divide-x divide-[#aaa]">
       <button (click)="setFormat('auto')" [class]="getFormatBtnClass('auto')" class="flex-1 py-1.5 text-[12px] font-medium transition-colors outline-none cursor-pointer">自動</button>
@@ -12,7 +41,7 @@
     </div>
   </div>
   <button class="w-full p-3 bg-[#28a745] hover:bg-[#218838] transition-colors text-white border-none rounded text-[16px] font-bold cursor-pointer disabled:bg-[#ccc] disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          [disabled]="!stateService.isLoaded() || isProcessing"
+          [disabled]="!stateService.isLoaded() || isProcessing || !!stateService.pageRangeError()"
           (click)="processAll()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />

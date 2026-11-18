@@ -23,6 +23,28 @@ export class ExportPanelComponent {
     this.stateService.outputFormat.set(format);
   }
 
+  readonly scaleOptions = [1, 1.5, 2, 3];
+
+  updatePageRange(event: Event) {
+    this.stateService.pageRange.set((event.target as HTMLInputElement).value);
+  }
+
+  setScale(scale: number) {
+    this.stateService.exportScale.set(scale);
+  }
+
+  getScaleBtnClass(scale: number) {
+    return this.stateService.exportScale() === scale
+      ? 'bg-(--color-primary) text-white'
+      : 'bg-transparent text-[#555] hover:bg-[#e0e0e0]';
+  }
+
+  /** 目前設定下，PDF 會被加浮水印的頁數 */
+  selectedPageCount() {
+    const r = this.stateService.pageRangeResult();
+    return 'pages' in r ? r.pages.length : 0;
+  }
+
   getFormatBtnClass(format: string) {
     if (this.stateService.outputFormat() === format) {
       return 'bg-(--color-primary) text-white';

@@ -2,6 +2,17 @@ import { TestBed } from '@angular/core/testing';
 import { WatermarkExportService } from './watermark-export.service';
 import { WatermarkParams, WatermarkStateService } from './watermark-state.service';
 
+const zipMock = vi.hoisted(() => ({ file: vi.fn(), generateAsync: vi.fn() }));
+const pdfjsMock = vi.hoisted(() => ({ getDocument: vi.fn() }));
+const pdfLibMock = vi.hoisted(() => ({ load: vi.fn() }));
+vi.mock('pdfjs-dist', () => ({ getDocument: pdfjsMock.getDocument, GlobalWorkerOptions: {} }));
+vi.mock('pdf-lib', () => ({ PDFDocument: { load: pdfLibMock.load, create: vi.fn() } }));
+vi.mock('jszip', () => ({
+  default: function () {
+    return zipMock;
+  },
+}));
+
 function makeCtx() {
   return {
     save: vi.fn(),
@@ -139,20 +150,16 @@ describe('WatermarkExportService', () => {
   describe('processAll', () => {
     const imgFile = (name: string, type = 'image/png') => new File(['x'], name, { type });
 
-    let zipFile: ReturnType<typeof vi.fn>;
-    let zipGenerate: ReturnType<typeof vi.fn>;
+    const zipFile = zipMock.file;
+    const zipGenerate = zipMock.generateAsync;
 
     beforeEach(() => {
-      zipFile = vi.fn();
-      zipGenerate = vi.fn().mockResolvedValue(new Blob(['zip']));
-      (globalThis as any).JSZip = function () {
-        return { file: zipFile, generateAsync: zipGenerate };
-      };
+      zipFile.mockReset();
+      zipGenerate.mockReset().mockResolvedValue(new Blob(['zip']));
       vi.spyOn(window, 'alert').mockImplementation(() => {});
     });
 
     afterEach(() => {
-      delete (globalThis as any).JSZip;
       vi.restoreAllMocks();
     });
 
@@ -224,8 +231,8 @@ describe('WatermarkExportService', () => {
       state.files.set([new File(['p'], 'doc.pdf', { type: 'application/pdf' })]);
       state.outputFormat.set('png');
       vi.spyOn(service, 'processPdfToImages').mockResolvedValue([
-        new Blob(['1'], { type: 'image/png' }),
-        new Blob(['2'], { type: 'image/png' }),
+        { page: 1, blob: new Blob(['1'], { type: 'image/png' }) },
+        { page: 2, blob: new Blob(['2'], { type: 'image/png' }) },
       ]);
       const save = vi.spyOn(service, 'saveFile').mockResolvedValue('out.zip');
 
@@ -234,6 +241,70 @@ describe('WatermarkExportService', () => {
       expect(zipFile.mock.calls.map((c) => c[0])).toEqual(['doc_page_01.png', 'doc_page_02.png']);
       // multiple outputs => zip, not single-file save
       expect(save.mock.calls[0][2]).toBe('zip');
+    });
+
+    it('reports per-page progress for multi-page PDFs', async () => {
+      state.files.set([new File(['p'], 'doc.pdf', { type: 'application/pdf' })]);
+      state.outputFormat.set('png');
+      vi.spyOn(service, 'processPdfToImages').mockImplementation(async (_f, _p, _m, options) => {
+        options?.onPage?.(1, 2);
+        options?.onPage?.(2, 2);
+        return [
+          { page: 1, blob: new Blob(['1']) },
+          { page: 2, blob: new Blob(['2']) },
+        ];
+      });
+      vi.spyOn(service, 'saveFile').mockResolvedValue('x.zip');
+
+      const status = vi.fn();
+      await service.processAll(status);
+
+      expect(status).toHaveBeenCalledWith('正在處理 (1/1): doc.pdf - 第 1/2 頁');
+      expect(status).toHaveBeenCalledWith('正在處理 (1/1): doc.pdf - 第 2/2 頁');
+    });
+
+    it('does not add page text for single-page PDFs', async () => {
+      state.files.set([new File(['p'], 'one.pdf', { type: 'application/pdf' })]);
+      state.outputFormat.set('auto');
+      vi.spyOn(service, 'processPDF').mockImplementation(async (_f, _p, options) => {
+        options?.onPage?.(1, 1);
+        return new Blob(['pdf'], { type: 'application/pdf' });
+      });
+      vi.spyOn(service, 'saveFile').mockResolvedValue('x.pdf');
+
+      const status = vi.fn();
+      await service.processAll(status);
+
+      expect(status.mock.calls.some((c) => String(c[0]).includes('頁'))).toBe(false);
+    });
+
+    it('names image pages after their original page numbers', async () => {
+      state.files.set([new File(['p'], 'doc.pdf', { type: 'application/pdf' })]);
+      state.outputFormat.set('jpg');
+      vi.spyOn(service, 'processPdfToImages').mockResolvedValue([
+        { page: 3, blob: new Blob(['3']) },
+        { page: 12, blob: new Blob(['12']) },
+      ]);
+      vi.spyOn(service, 'saveFile').mockResolvedValue('x.zip');
+
+      await service.processAll(vi.fn());
+
+      expect(zipFile.mock.calls.map((c) => c[0])).toEqual(['doc_page_03.jpg', 'doc_page_12.jpg']);
+    });
+
+    it('passes the page range and scale to the PDF processors', async () => {
+      state.files.set([new File(['p'], 'doc.pdf', { type: 'application/pdf' })]);
+      state.outputFormat.set('auto');
+      state.pageRange.set('2-4');
+      state.exportScale.set(3);
+      const proc = vi
+        .spyOn(service, 'processPDF')
+        .mockResolvedValue(new Blob(['pdf'], { type: 'application/pdf' }));
+      vi.spyOn(service, 'saveFile').mockResolvedValue('x.pdf');
+
+      await service.processAll(vi.fn());
+
+      expect(proc.mock.calls[0][2]).toMatchObject({ pageRange: '2-4', scale: 3 });
     });
 
     it('keeps a PDF as PDF when no image format is requested', async () => {
@@ -310,6 +381,148 @@ describe('WatermarkExportService', () => {
       const status = vi.fn();
       await expect(service.processAll(status)).rejects.toThrow('boom');
       expect(status).toHaveBeenLastCalledWith('發生錯誤: boom');
+    });
+  });
+
+  describe('processPdfToImages', () => {
+    function fakePdf(numPages: number) {
+      const getViewport = vi.fn(({ scale }: { scale: number }) => ({ width: 100 * scale, height: 200 * scale }));
+      const getPage = vi.fn(async (_n: number) => ({
+        getViewport,
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: vi.fn(),
+      }));
+      const destroy = vi.fn(async () => {});
+      return { numPages, getPage, getViewport, loadingTask: { destroy } };
+    }
+
+    beforeEach(() => {
+      const realCreate = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation(((tag: string) =>
+        tag === 'canvas'
+          ? {
+              getContext: () => makeCtx(),
+              toBlob: (cb: (b: Blob | null) => void) => cb(new Blob(['img'])),
+              width: 0,
+              height: 0,
+            }
+          : realCreate(tag)) as any);
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    const pdfFile = () => new File(['%PDF'], 'd.pdf', { type: 'application/pdf' });
+
+    it('renders every page when no range is given', async () => {
+      const pdf = fakePdf(3);
+      pdfjsMock.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+      const out = await service.processPdfToImages(pdfFile(), params(), 'image/png');
+      expect(out.map((o) => o.page)).toEqual([1, 2, 3]);
+    });
+
+    it('outputs every page but only watermarks the selected ones', async () => {
+      const pdf = fakePdf(6);
+      pdfjsMock.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+      const wm = vi.spyOn(service, 'applyWatermarkToCanvas').mockImplementation(() => {});
+      const onPage = vi.fn();
+      const out = await service.processPdfToImages(pdfFile(), params(), 'image/png', {
+        pageRange: '2,5-6',
+        onPage,
+      });
+      expect(out.map((o) => o.page)).toEqual([1, 2, 3, 4, 5, 6]);
+      expect(wm).toHaveBeenCalledTimes(3);
+      expect(onPage.mock.calls.map((c) => c[0])).toEqual([1, 2, 3, 4, 5, 6]);
+      expect(onPage.mock.calls[0]).toEqual([1, 6]);
+    });
+
+    it('watermarks every page when no range is given', async () => {
+      const pdf = fakePdf(3);
+      pdfjsMock.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+      const wm = vi.spyOn(service, 'applyWatermarkToCanvas').mockImplementation(() => {});
+      await service.processPdfToImages(pdfFile(), params(), 'image/png');
+      expect(wm).toHaveBeenCalledTimes(3);
+    });
+
+    it('uses the requested scale, defaulting to 2', async () => {
+      const pdf = fakePdf(1);
+      pdfjsMock.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+      await service.processPdfToImages(pdfFile(), params(), 'image/png', { scale: 3 });
+      expect(pdf.getViewport).toHaveBeenLastCalledWith({ scale: 3 });
+      await service.processPdfToImages(pdfFile(), params(), 'image/png');
+      expect(pdf.getViewport).toHaveBeenLastCalledWith({ scale: 2 });
+    });
+
+    it('rejects an out-of-range page and still closes the document', async () => {
+      const pdf = fakePdf(2);
+      pdfjsMock.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+      await expect(
+        service.processPdfToImages(pdfFile(), params(), 'image/png', { pageRange: '5' })
+      ).rejects.toThrow('頁碼範圍錯誤');
+      expect(pdf.loadingTask.destroy).toHaveBeenCalled();
+    });
+
+    it('closes the document after a normal run', async () => {
+      const pdf = fakePdf(1);
+      pdfjsMock.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+      await service.processPdfToImages(pdfFile(), params(), 'image/png');
+      expect(pdf.loadingTask.destroy).toHaveBeenCalled();
+    });
+  });
+
+  describe('processPDF', () => {
+    function fakeDoc(numPages: number) {
+      const pages = Array.from({ length: numPages }, () => ({
+        getSize: () => ({ width: 100, height: 200 }),
+        drawImage: vi.fn((_img: unknown, _opts: any) => {}),
+      }));
+      const embedPng = vi.fn(async () => ({}));
+      const save = vi.fn(async () => new Uint8Array([1, 2, 3]));
+      return { pages, embedPng, save, getPages: () => pages };
+    }
+    let canvases: { width: number; height: number }[];
+
+    beforeEach(() => {
+      canvases = [];
+      const realCreate = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation(((tag: string) => {
+        if (tag !== 'canvas') return realCreate(tag);
+        const c = {
+          getContext: () => makeCtx(),
+          toBlob: (cb: (b: Blob | null) => void) => cb(new Blob(['png'])),
+          width: 0,
+          height: 0,
+        };
+        canvases.push(c);
+        return c;
+      }) as any);
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    const pdfFile = () => new File(['%PDF'], 'd.pdf', { type: 'application/pdf' });
+
+    it('watermarks only the selected pages and leaves the others untouched', async () => {
+      const doc = fakeDoc(4);
+      pdfLibMock.load.mockResolvedValue(doc);
+      await service.processPDF(pdfFile(), params(), { pageRange: '2,4' });
+      expect(doc.pages.map((pg) => pg.drawImage.mock.calls.length)).toEqual([0, 1, 0, 1]);
+      expect(doc.save).toHaveBeenCalled();
+    });
+
+    it('draws the overlay at the requested scale', async () => {
+      const doc = fakeDoc(1);
+      pdfLibMock.load.mockResolvedValue(doc);
+      await service.processPDF(pdfFile(), params(), { scale: 3 });
+      expect(canvases[0]).toMatchObject({ width: 300, height: 600 });
+      // 貼回頁面時仍使用原本的頁面尺寸
+      expect(doc.pages[0].drawImage.mock.calls[0][1]).toMatchObject({ width: 100, height: 200 });
+    });
+
+    it('rejects an invalid page range before drawing anything', async () => {
+      const doc = fakeDoc(2);
+      pdfLibMock.load.mockResolvedValue(doc);
+      await expect(service.processPDF(pdfFile(), params(), { pageRange: '9' })).rejects.toThrow('頁碼範圍錯誤');
+      expect(doc.save).not.toHaveBeenCalled();
     });
   });
 

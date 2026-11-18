@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, effect, inject, signal, AfterViewInit } from '@angular/core';
 import { WatermarkStateService, WatermarkParams } from '../../services/watermark-state.service';
 import { WatermarkExportService } from '../../services/watermark-export.service';
+import { PdfPreviewService } from '../../services/pdf-preview.service';
 import { SafeZoneBoxComponent } from '../safe-zone-box/safe-zone-box';
 
 @Component({
@@ -12,10 +13,13 @@ import { SafeZoneBoxComponent } from '../safe-zone-box/safe-zone-box';
 export class PreviewPaneComponent implements AfterViewInit {
   stateService = inject(WatermarkStateService);
   exportService = inject(WatermarkExportService);
+  pdfPreview = inject(PdfPreviewService);
   @ViewChild('previewCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private previewImg = new Image();
   isFullscreen = signal(false);
+  isPageLoading = signal(false);
+  pageError = signal(false);
   modalImageSrc = signal('');
 
   isDragging = false;
@@ -212,10 +216,43 @@ export class PreviewPaneComponent implements AfterViewInit {
 
     effect(() => {
       const params = this.stateService.getParams();
+      this.stateService.isCurrentPageWatermarked(); // 頁面範圍改變時要重畫
       if (this.stateService.isLoaded() && this.previewImg.src) {
         requestAnimationFrame(() => this.drawCanvas());
       }
     });
+  }
+
+  prevPage() {
+    this.goToPage(this.stateService.currentPage() - 1);
+  }
+
+  nextPage() {
+    this.goToPage(this.stateService.currentPage() + 1);
+  }
+
+  async goToPage(page: number) {
+    const state = this.stateService;
+    if (page < 1 || page > state.pageCount() || page === state.currentPage()) return;
+    const file = state.files()[state.activeIndex()];
+    if (!file) return;
+
+    const fileIndex = state.activeIndex();
+    state.currentPage.set(page);
+    this.isPageLoading.set(true);
+    this.pageError.set(false);
+    try {
+      const url = await this.pdfPreview.renderPage(file, page);
+      // 渲染期間若使用者又翻頁或換檔案，就丟棄這次結果
+      if (state.currentPage() === page && state.activeIndex() === fileIndex) {
+        state.previewImageSrc.set(url);
+      }
+    } catch (e) {
+      console.error(e);
+      if (state.currentPage() === page) this.pageError.set(true);
+    } finally {
+      if (state.currentPage() === page) this.isPageLoading.set(false);
+    }
   }
 
   prevImage() {
@@ -258,6 +295,8 @@ export class PreviewPaneComponent implements AfterViewInit {
 
       ctx.drawImage(this.previewImg, 0, 0, canvas.width, canvas.height);
 
-      this.exportService.applyWatermarkToCanvas(ctx, canvas.width, canvas.height, this.stateService.getParams());
+      if (this.stateService.isCurrentPageWatermarked()) {
+        this.exportService.applyWatermarkToCanvas(ctx, canvas.width, canvas.height, this.stateService.getParams());
+      }
     }
   }

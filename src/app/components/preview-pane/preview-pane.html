@@ -53,9 +53,24 @@
     }
   </div>
 
+  @if (stateService.pageCount() > 1) {
+  <div
+    class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white pl-1 pr-1 py-1 rounded-full text-[12px] shadow flex items-center gap-1 z-20">
+    <button (click)="prevPage()" [disabled]="stateService.currentPage() <= 1" aria-label="上一頁"
+      class="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed">‹</button>
+    <span class="min-w-[84px] text-center">
+      @if (pageError()) { 載入失敗 } @else if (isPageLoading()) { 載入中… } @else {
+      第 {{ stateService.currentPage() }} / {{ stateService.pageCount() }} 頁 }
+    </span>
+    <button (click)="nextPage()" [disabled]="stateService.currentPage() >= stateService.pageCount()" aria-label="下一頁"
+      class="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed">›</button>
+  </div>
+  }
+
   @if (stateService.files().length > 1) {
   <div
-    class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-[12px] shadow pointer-events-none z-20">
+    class="absolute left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-[12px] shadow pointer-events-none z-20"
+    [class.bottom-2]="stateService.pageCount() <= 1" [class.bottom-12]="stateService.pageCount() > 1">
     {{ stateService.activeIndex() + 1 }} / {{ stateService.files().length }}
   </div>
   }
